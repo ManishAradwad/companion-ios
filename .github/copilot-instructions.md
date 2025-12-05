@@ -47,6 +47,8 @@ Copy from `Companion/LLMEval/LLMEval.entitlements` to Companion target:
 - `com.apple.security.network.client` — For HuggingFace model downloads
 
 ## Build & Debug Notes
+- **Swift 5** language version (Build Settings → Swift Language Version)
+- **Xcode 26.0.1** on macOS 26 (2025 release)
 - **Release builds** recommended for large models (avoids stack overflow in Debug)
 - Disable debugger for performance: `cmd+opt+r` → uncheck "Debug Executable"
 - Set Team in Signing & Capabilities before device builds
