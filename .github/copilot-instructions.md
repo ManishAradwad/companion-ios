@@ -3,28 +3,31 @@
 ## Project Overview
 **Companion** is an early-stage iOS app for on-device AI-powered journaling/assistant features, built with SwiftUI and MLX for local LLM inference. The codebase is in a **transitional state**:
 
-- `Companion/Companion/` — Main app scaffold (Xcode template, SwiftData-based `Item.swift`)
-- `Companion/Companion/LLMEval/` — **Unmerged reference code** from Apple's [mlx-swift-examples](https://github.com/ml-explore/mlx-swift-examples). This will be integrated into Companion's architecture.
+- `Companion/` — Main app scaffold (Xcode template, SwiftData-based `Item.swift`)
+- `Companion/LLMEval/` — **Unmerged reference code** from Apple's [mlx-swift-examples](https://github.com/ml-explore/mlx-swift-examples). This will be integrated into Companion's architecture.
 
 ## Current File Roles
 | File | Status | Purpose |
 |------|--------|---------|
-| `CompanionApp.swift` | Active | App entry point with SwiftData `ModelContainer` |
-| `ContentView.swift` (root) | Placeholder | Xcode template list view—will become chat UI |
-| `Item.swift` | Placeholder | SwiftData model for timestamps—will be replaced |
-| `LLMEval/ContentView.swift` | Reference | Full MLX streaming UI implementation |
-| `LLMEval/LLMEvalApp.swift` | Reference | Shows `DeviceStat` environment injection |
-| `LLMEval/ViewModels/DeviceStat.swift` | Reusable | GPU memory tracking—integrate directly |
+| `Companion/CompanionApp.swift` | Active | App entry point with SwiftData `ModelContainer` |
+| `Companion/ContentView.swift` | Placeholder | Xcode template list view—will become chat UI |
+| `Companion/Item.swift` | Placeholder | SwiftData model for timestamps—will be replaced |
+| `Companion/LLMEval/ContentView.swift` | Reference | Full MLX streaming UI implementation & `LLMEvaluator` |
+| `Companion/LLMEval/LLMEvalApp.swift` | Reference | Shows `DeviceStat` environment injection |
+| `Companion/LLMEval/ViewModels/DeviceStat.swift` | Reusable | GPU memory tracking—integrate directly |
 
 ## MLX LLM Patterns (from LLMEval)
 ### Model Loading
+Reference: `Companion/LLMEval/ContentView.swift`
 ```swift
-let modelConfiguration = LLMRegistry.qwen3_1_7b_4bit  // or other models from MLXLLM
+// In LLMEvaluator
+let modelConfiguration = LLMRegistry.qwen3_1_7b_4bit  // Example model
 MLX.GPU.set(cacheLimit: 20 * 1024 * 1024)  // Limit buffer cache
 let container = try await LLMModelFactory.shared.loadContainer(configuration: modelConfiguration)
 ```
 
 ### Streaming Generation
+Reference: `Companion/LLMEval/ContentView.swift`
 ```swift
 let stream = try MLXLMCommon.generate(input: lmInput, parameters: generateParameters, context: context)
 for await batch in stream._throttle(for: .seconds(0.25), reducing: Generation.collect) {
@@ -36,10 +39,10 @@ for await batch in stream._throttle(for: .seconds(0.25), reducing: Generation.co
 ### SwiftUI State Management
 - Use `@Observable` class (`LLMEvaluator`) for model state
 - Bind prompt input with `Bindable(llm).prompt`
-- Use `@Environment(DeviceStat.self)` for GPU stats
+- Use `@Environment(DeviceStat.self)` for GPU stats (injected in `LLMEvalApp.swift`)
 
 ## Required Entitlements
-Copy from `LLMEval/LLMEval.entitlements` to Companion target:
+Copy from `Companion/LLMEval/LLMEval.entitlements` to Companion target:
 - `com.apple.developer.kernel.increased-memory-limit` — Required for LLM weights
 - `com.apple.security.network.client` — For HuggingFace model downloads
 
