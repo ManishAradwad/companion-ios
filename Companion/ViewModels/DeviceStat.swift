@@ -1,3 +1,10 @@
+//
+//  DeviceStat.swift
+//  Companion
+//
+//  GPU memory tracking utility adapted from LLMEval
+//
+
 import Foundation
 import MLX
 
@@ -26,5 +33,4 @@ final class DeviceStat: @unchecked Sendable {
             self?.gpuUsage = gpuSnapshotDelta
         }
     }
-
 }

@@ -5,14 +5,15 @@
 //  Created by Manish Aradwad on 12/2/25.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct CompanionApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            ChatSession.self,
+            ChatMessage.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -25,7 +26,8 @@ struct CompanionApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainTabView()
+                .environment(DeviceStat())
         }
         .modelContainer(sharedModelContainer)
     }

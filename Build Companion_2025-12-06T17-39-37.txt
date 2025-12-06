@@ -1,0 +1,127 @@
+
+Showing Recent Issues
+
+Build target mlx-swift_Cmlx with configuration Debug
+
+CompileMetalFile /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/SourcePackages/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/steel_attention.metal (in target 'mlx-swift_Cmlx' from project 'mlx-swift')
+    cd /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/SourcePackages/checkouts/mlx-swift
+    /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.1.324.0.jB9bgW/Metal.xctoolchain/usr/bin/metal -c -target air64-apple-ios16.0 -I/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/include -F/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk -fmetal-math-mode\=fast -fmetal-math-fp32-functions\=fast -serialize-diagnostics /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/mlx-swift.build/Debug-iphoneos/mlx-swift_Cmlx.build/Metal/steel_attention.dia -o /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/mlx-swift.build/Debug-iphoneos/mlx-swift_Cmlx.build/Metal/steel_attention.air -MMD -MT dependencies -MF /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/mlx-swift.build/Debug-iphoneos/mlx-swift_Cmlx.build/Metal/steel_attention.dat /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/SourcePackages/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/steel_attention.metal
+
+In file included from /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/SourcePackages/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/steel_attention.metal:7:
+/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/SourcePackages/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/../../../steel/attn/kernels/steel_attention.h:359:16: warning: constexpr if is a C++17 extension [-Wc++17-extensions]
+            if constexpr (is_bool) {
+               ^
+/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/SourcePackages/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/../../../steel/attn/kernels/steel_attention.h:429:14: warning: constexpr if is a C++17 extension [-Wc++17-extensions]
+          if constexpr (BD == 128) {
+             ^
+/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/SourcePackages/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/../../../steel/attn/kernels/steel_attention.h:439:14: warning: constexpr if is a C++17 extension [-Wc++17-extensions]
+          if constexpr (BD == 128) {
+             ^
+3 warnings generated.
+
+/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/SourcePackages/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/steel_attention.h:359:16: Constexpr if is a C++17 extension
+
+/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/SourcePackages/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/steel_attention.h:429:14: Constexpr if is a C++17 extension
+
+/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/SourcePackages/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/steel_attention.h:439:14: Constexpr if is a C++17 extension
+
+
+Build target Companion of project Companion with configuration Debug
+
+SwiftCompile normal arm64 Compiling\ CompanionApp.swift /Users/toji/Projects/companion-ios/Companion/CompanionApp.swift (in target 'Companion' from project 'Companion')
+
+Failed frontend command:
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -c /Users/toji/Projects/companion-ios/Companion/Models/ChatMessage.swift /Users/toji/Projects/companion-ios/Companion/Models/ChatSession.swift /Users/toji/Projects/companion-ios/Companion/Services/LLMService.swift /Users/toji/Projects/companion-ios/Companion/ViewModels/DeviceStat.swift /Users/toji/Projects/companion-ios/Companion/Views/ChatView.swift /Users/toji/Projects/companion-ios/Companion/Views/HistoryView.swift /Users/toji/Projects/companion-ios/Companion/Views/MainTabView.swift -primary-file /Users/toji/Projects/companion-ios/Companion/CompanionApp.swift /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/DerivedSources/GeneratedAssetSymbols.swift -emit-dependencies-path /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/Objects-normal/arm64/CompanionApp.d -emit-const-values-path /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/Objects-normal/arm64/CompanionApp.swiftconstvalues -emit-reference-dependencies-path /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/Objects-normal/arm64/CompanionApp.swiftdeps -serialize-diagnostics-path /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/Objects-normal/arm64/CompanionApp.dia -emit-localized-strings -emit-localized-strings-path /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/Objects-normal/arm64 -target arm64-apple-ios16.6 -module-can-import-version DeveloperToolsSupport 23.0.4 23.0.4 -module-can-import-version SwiftUI 7.0.84.1 7.0.84 -module-can-import-version UIKit 9088.1.113 9088.1.113 -disable-cross-import-overlay-search -swift-module-cross-import SwiftData /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/SwiftData.framework/Modules/SwiftData.swiftcrossimport/CoreData.swiftoverlay -swift-module-cross-import SwiftData /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/SwiftData.framework/Modules/SwiftData.swiftcrossimport/SwiftUI.swiftoverlay -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libFoundationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#FoundationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libObservationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#ObservationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libPreviewsMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#PreviewsMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libSwiftDataMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#SwiftDataMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libSwiftMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#SwiftMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libSwiftUIMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#SwiftUIMacros -disable-implicit-swift-modules -Xcc -fno-implicit-modules -Xcc -fno-implicit-module-maps -explicit-swift-module-map-file /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/Objects-normal/arm64/Companion-dependencies-1.json -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk -I /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/PackageFrameworks -F /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos -no-color-diagnostics -Xcc -fno-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=4 -module-cache-path /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -swift-version 5 -enforce-exclusivity\=checked -Onone -D DEBUG -serialize-debugging-options -const-gather-protocols-file /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/Objects-normal/arm64/Companion_const_extract_protocols.json -enable-upcoming-feature DisableOutwardActorInference -enable-upcoming-feature InferSendableFromCaptures -enable-upcoming-feature GlobalActorIsolatedTypesUsability -enable-upcoming-feature MemberImportVisibility -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -default-isolation\=MainActor -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /Users/toji/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/toji/Projects/companion-ios -enable-anonymous-context-mangled-names -file-compilation-dir /Users/toji/Projects/companion-ios -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -Xcc -ivfsstatcache -Xcc /Users/toji/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphoneos26.0-23A339-3885c01c3e6b6a337905948deab2002e81ce72e5b06c9602b9d30b56f2eed08a.sdkstatcache -Xcc -I/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/swift-overrides.hmap -Xcc -iquote -Xcc /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/Companion-generated-files.hmap -Xcc -I/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/Companion-own-target-headers.hmap -Xcc -I/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/Companion-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion-092eaa6e45db4b9a24e1564189651b87-VFS-iphoneos/all-product-headers.yaml -Xcc -iquote -Xcc /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/Companion-project-headers.hmap -Xcc -I/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/SourcePackages/checkouts/swift-numerics/Sources/_NumericsShims/include -Xcc -I/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/SourcePackages/checkouts/mlx-swift/Source/Cmlx/include -Xcc -I/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/SourcePackages/checkouts/swift-cmark/src/include -Xcc -I/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/SourcePackages/checkouts/swift-cmark/extensions/include -Xcc -I/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Products/Debug-iphoneos/include -Xcc -I/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/DerivedSources-normal/arm64 -Xcc -I/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/DerivedSources/arm64 -Xcc -I/Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/DerivedSources -Xcc -DDEBUG\=1 -no-auto-bridging-header-chaining -module-name Companion -frontend-parseable-output -disable-clang-spi -target-sdk-version 26.0 -target-sdk-name iphoneos26.0 -clang-target arm64-apple-ios26.0 -in-process-plugin-server-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -o /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Build/Intermediates.noindex/Companion.build/Debug-iphoneos/Companion.build/Objects-normal/arm64/CompanionApp.o -index-unit-output-path /Companion.build/Debug-iphoneos/Companion.build/Objects-normal/arm64/CompanionApp.o -index-store-path /Users/toji/Library/Developer/Xcode/DerivedData/Companion-edboxmdwuxhszchgswmrirdbwzal/Index.noindex/DataStore -index-system-modules
+
+SwiftCompile normal arm64 /Users/toji/Projects/companion-ios/Companion/CompanionApp.swift (in target 'Companion' from project 'Companion')
+    cd /Users/toji/Projects/companion-ios
+    
+
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:13:31: error: 'ModelContainer' is only available in iOS 17 or newer
+    var sharedModelContainer: ModelContainer = {
+                              ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:12:8: note: add '@available' attribute to enclosing struct
+struct CompanionApp: App {
+       ^
+/Users/toji/Projects/companion-ios/Companion/Models/ChatSession.swift:11:2: error: 'Model()' is only available in iOS 17 or newer
+@Model
+ ^
+/Users/toji/Projects/companion-ios/Companion/Models/ChatMessage.swift:11:2: error: 'Model()' is only available in iOS 17 or newer
+@Model
+ ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:14:22: error: 'Schema' is only available in iOS 17 or newer
+        let schema = Schema([
+                     ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:14:22: note: add 'if #available' version check
+        let schema = Schema([
+                     ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:12:8: note: add '@available' attribute to enclosing struct
+struct CompanionApp: App {
+       ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:18:34: error: 'ModelConfiguration' is only available in iOS 17 or newer
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+                                 ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:18:34: note: add 'if #available' version check
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+                                 ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:12:8: note: add '@available' attribute to enclosing struct
+struct CompanionApp: App {
+       ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:21:24: error: 'ModelContainer' is only available in iOS 17 or newer
+            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+                       ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:21:24: note: add 'if #available' version check
+            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+                       ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:12:8: note: add '@available' attribute to enclosing struct
+struct CompanionApp: App {
+       ^
+/Users/toji/Projects/companion-ios/Companion/ViewModels/DeviceStat.swift:11:2: error: 'Observable()' is only available in iOS 17.0 or newer
+@Observable
+ ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:30:18: error: 'environment' is only available in iOS 17.0 or newer
+                .environment(DeviceStat())
+                 ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:30:18: note: add 'if #available' version check
+                .environment(DeviceStat())
+                 ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:27:9: note: add '@available' attribute to enclosing property
+    var body: some Scene {
+        ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:12:8: note: add '@available' attribute to enclosing struct
+struct CompanionApp: App {
+       ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:32:10: error: 'modelContainer' is only available in iOS 17.0 or newer
+        .modelContainer(sharedModelContainer)
+         ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:32:10: note: add 'if #available' version check
+        .modelContainer(sharedModelContainer)
+         ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:27:9: note: add '@available' attribute to enclosing property
+    var body: some Scene {
+        ^
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:12:8: note: add '@available' attribute to enclosing struct
+struct CompanionApp: App {
+       ^
+
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:13:31: 'ModelContainer' is only available in iOS 17 or newer
+
+/Users/toji/Projects/companion-ios/Companion/Models/ChatSession.swift:11:2: 'Model()' is only available in iOS 17 or newer
+
+/Users/toji/Projects/companion-ios/Companion/Models/ChatMessage.swift:11:2: 'Model()' is only available in iOS 17 or newer
+
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:14:22: 'Schema' is only available in iOS 17 or newer
+
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:18:34: 'ModelConfiguration' is only available in iOS 17 or newer
+
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:21:24: 'ModelContainer' is only available in iOS 17 or newer
+
+/Users/toji/Projects/companion-ios/Companion/ViewModels/DeviceStat.swift:11:2: 'Observable()' is only available in iOS 17.0 or newer
+
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:30:18: 'environment' is only available in iOS 17.0 or newer
+
+/Users/toji/Projects/companion-ios/Companion/CompanionApp.swift:32:10: 'modelContainer' is only available in iOS 17.0 or newer
+
+
+
+Build failed    12/6/25, 5:41 PM    130.4 seconds
