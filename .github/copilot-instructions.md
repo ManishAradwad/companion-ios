@@ -15,6 +15,9 @@ Companion/
 │   └── ChatMessage.swift       # SwiftData model for messages
 ├── Services/
 │   └── LLMService.swift        # LLM loading, generation, session management
+├── Resources/
+│   └── Prompts/
+│       └── system_prompt.txt   # Configurable system prompt
 ├── ViewModels/
 │   └── DeviceStat.swift        # GPU memory tracking utility
 ├── Views/

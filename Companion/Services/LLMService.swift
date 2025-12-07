@@ -106,6 +106,14 @@ class LLMService {
     
     // MARK: - Generation
     
+    private func loadSystemPrompt() -> String {
+        if let url = Bundle.main.url(forResource: "system_prompt", withExtension: "txt"),
+           let prompt = try? String(contentsOf: url, encoding: .utf8) {
+            return prompt.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return "You are a helpful AI assistant for journaling. Be supportive, insightful, and help the user reflect on their thoughts and feelings."
+    }
+    
     /// Generate a response for the given session
     func generate(
         prompt: String,
@@ -136,7 +144,7 @@ class LLMService {
                 
                 // Build chat history from session messages
                 var chat: [Chat.Message] = [
-                    .system("You are a helpful AI assistant for journaling. Be supportive, insightful, and help the user reflect on their thoughts and feelings.")
+                    .system(self.loadSystemPrompt())
                 ]
                 
                 for message in session.sortedMessages {
