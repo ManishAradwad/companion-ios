@@ -7,6 +7,7 @@
 
 import SwiftData
 import SwiftUI
+import UIKit
 
 struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
@@ -19,22 +20,31 @@ struct HistoryView: View {
     
     @State private var selectedSession: ChatSession?
     
+    // MARK: - Cached Formatters
+    
+    /// Cached date formatter for month/year display (avoid repeated allocations)
+    private static let monthYearFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter
+    }()
+    
     /// Group sessions by date
     private var groupedSessions: [(String, [ChatSession])] {
         let calendar = Calendar.current
+        let now = Date()
+        
         let grouped = Dictionary(grouping: sessions) { session -> String in
             if calendar.isDateInToday(session.createdAt) {
                 return "Today"
             } else if calendar.isDateInYesterday(session.createdAt) {
                 return "Yesterday"
-            } else if calendar.isDate(session.createdAt, equalTo: Date(), toGranularity: .weekOfYear) {
+            } else if calendar.isDate(session.createdAt, equalTo: now, toGranularity: .weekOfYear) {
                 return "This Week"
-            } else if calendar.isDate(session.createdAt, equalTo: Date(), toGranularity: .month) {
+            } else if calendar.isDate(session.createdAt, equalTo: now, toGranularity: .month) {
                 return "This Month"
             } else {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "MMMM yyyy"
-                return formatter.string(from: session.createdAt)
+                return Self.monthYearFormatter.string(from: session.createdAt)
             }
         }
         
@@ -107,6 +117,10 @@ struct HistoryView: View {
     }
     
     private func deleteSessions(at offsets: IndexSet, from sessionsInSection: [ChatSession]) {
+        // Haptic feedback for delete
+        let notification = UINotificationFeedbackGenerator()
+        notification.notificationOccurred(.warning)
+        
         withAnimation {
             for index in offsets {
                 let session = sessionsInSection[index]
@@ -207,37 +221,16 @@ struct SessionDetailView: View {
                     }
                     .padding()
                 }
+                .scrollDismissesKeyboard(.interactively)
                 
                 // Input area for non-frozen sessions
                 if !session.isFrozen {
-                    VStack(spacing: 0) {
-                        Divider()
-                        
-                        HStack(spacing: 12) {
-                            TextField("Message...", text: $prompt, axis: .vertical)
-                                .textFieldStyle(.plain)
-                                .padding(12)
-                                .background(Color(.systemGray6))
-                                .clipShape(RoundedRectangle(cornerRadius: 20))
-                                .lineLimit(1...5)
-                                .disabled(llmService.running)
-                            
-                            Button {
-                                if llmService.running {
-                                    llmService.cancelGeneration()
-                                } else {
-                                    sendMessage()
-                                }
-                            } label: {
-                                Image(systemName: llmService.running ? "stop.circle.fill" : "arrow.up.circle.fill")
-                                    .font(.title)
-                                    .foregroundStyle(llmService.running ? .red : .blue)
-                            }
-                            .disabled(!llmService.running && prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                        }
-                        .padding()
-                    }
-                    .background(Color(.systemBackground))
+                    MessageInputBar(
+                        prompt: $prompt,
+                        isRunning: llmService.running,
+                        onSend: sendMessage,
+                        onCancel: { llmService.cancelGeneration() }
+                    )
                 }
             }
             .navigationTitle(session.title)

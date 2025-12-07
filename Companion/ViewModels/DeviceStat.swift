@@ -7,6 +7,7 @@
 
 import Foundation
 import MLX
+import UIKit
 
 @Observable
 final class DeviceStat: @unchecked Sendable {
@@ -16,15 +17,53 @@ final class DeviceStat: @unchecked Sendable {
 
     private let initialGPUSnapshot = GPU.snapshot()
     private var timer: Timer?
+    private var observers: [NSObjectProtocol] = []
 
     init() {
-        timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
-            self?.updateGPUUsages()
-        }
+        startTimer()
+        setupAppLifecycleObservers()
     }
 
     deinit {
         timer?.invalidate()
+        observers.forEach { NotificationCenter.default.removeObserver($0) }
+    }
+    
+    // MARK: - Timer Management
+    
+    private func startTimer() {
+        guard timer == nil else { return }
+        timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+            self?.updateGPUUsages()
+        }
+    }
+    
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
+    
+    private func setupAppLifecycleObservers() {
+        // Pause timer when app goes to background to save resources
+        let backgroundObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.stopTimer()
+        }
+        
+        // Resume timer when app becomes active
+        let foregroundObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.willEnterForegroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.startTimer()
+            self?.updateGPUUsages() // Immediate update
+        }
+        
+        observers = [backgroundObserver, foregroundObserver]
     }
 
     private func updateGPUUsages() {

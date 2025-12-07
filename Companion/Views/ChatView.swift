@@ -10,6 +10,7 @@ import MLX
 import SwiftData
 import SwiftUI
 import MLXLMCommon
+import UIKit
 
 struct ChatView: View {
     @Environment(\.modelContext) private var modelContext
@@ -23,6 +24,8 @@ struct ChatView: View {
     @State private var prompt = ""
     @State private var currentSession: ChatSession?
     @State private var showModelInfo = false
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
     
     /// Get the active session (most recent from today, or create new one)
     private var activeSession: ChatSession? {
@@ -39,7 +42,12 @@ struct ChatView: View {
                 messageList
                 
                 // Input area
-                inputArea
+                MessageInputBar(
+                    prompt: $prompt,
+                    isRunning: llmService.running,
+                    onSend: sendMessage,
+                    onCancel: { llmService.cancelGeneration() }
+                )
             }
             .navigationTitle("Companion")
             .toolbar {
@@ -61,6 +69,14 @@ struct ChatView: View {
             }
             .sheet(isPresented: $showModelInfo) {
                 ModelInfoSheet(llmService: llmService, deviceStat: deviceStat)
+            }
+            .alert("Error", isPresented: $showErrorAlert) {
+                Button("OK", role: .cancel) { }
+                Button("Retry") {
+                    Task { await loadModel() }
+                }
+            } message: {
+                Text(errorMessage)
             }
             .task {
                 // Pre-load model on launch
@@ -146,6 +162,7 @@ struct ChatView: View {
                     .frame(height: 1)
                     .id("bottom")
             }
+            .scrollDismissesKeyboard(.interactively)
             .onChange(of: llmService.output) { _, _ in
                 withAnimation {
                     proxy.scrollTo("bottom", anchor: .bottom)
@@ -159,47 +176,14 @@ struct ChatView: View {
         }
     }
     
-    private var inputArea: some View {
-        VStack(spacing: 0) {
-            Divider()
-            
-            HStack(spacing: 12) {
-                TextField("Message...", text: $prompt, axis: .vertical)
-                    .textFieldStyle(.plain)
-                    .padding(12)
-                    .background(Color(.systemGray6))
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .lineLimit(1...5)
-                    .disabled(llmService.running)
-                    .onSubmit {
-                        sendMessage()
-                    }
-                
-                Button {
-                    if llmService.running {
-                        llmService.cancelGeneration()
-                    } else {
-                        sendMessage()
-                    }
-                } label: {
-                    Image(systemName: llmService.running ? "stop.circle.fill" : "arrow.up.circle.fill")
-                        .font(.title)
-                        .foregroundStyle(llmService.running ? .red : .blue)
-                }
-                .disabled(!llmService.running && prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
-            .padding()
-        }
-        .background(Color(.systemBackground))
-    }
-    
     // MARK: - Actions
     
     private func loadModel() async {
         do {
             _ = try await llmService.load()
         } catch {
-            print("Failed to load model: \(error)")
+            errorMessage = "Failed to load AI model: \(error.localizedDescription)"
+            showErrorAlert = true
         }
     }
     
@@ -222,6 +206,10 @@ struct ChatView: View {
     }
     
     private func createNewSession() {
+        // Haptic feedback for new session
+        let impact = UIImpactFeedbackGenerator(style: .medium)
+        impact.impactOccurred()
+        
         let session = ChatSession()
         modelContext.insert(session)
         currentSession = session
