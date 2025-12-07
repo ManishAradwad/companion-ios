@@ -50,6 +50,7 @@ struct ChatView: View {
                 )
             }
             .navigationTitle("Companion")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
