@@ -58,14 +58,13 @@ class CloudLLMService: LLMServiceProtocol {
     
     func load() async throws {
         // For cloud service, just mark as loaded if API key is available
-        if apiKey != nil && !apiKey!.isEmpty {
-            loadState = .loaded
-            modelInfo = "Cloud Model Ready"
-        } else {
+        guard let apiKey = apiKey, !apiKey.isEmpty else {
             let error = CloudLLMError.noAPIKey
             loadState = .failed(error)
             throw error
         }
+        loadState = .loaded
+        modelInfo = "Cloud Model Ready"
     }
     
     // MARK: - Generation
@@ -203,8 +202,8 @@ class CloudLLMService: LLMServiceProtocol {
             fullResponse += content
             tokenCount += 1
             
-            // Update output in real-time
-            Task { @MainActor in
+            // Update output in real-time (on MainActor)
+            await MainActor.run {
                 self.output = fullResponse
                 
                 // Update stats
@@ -214,9 +213,6 @@ class CloudLLMService: LLMServiceProtocol {
                     self.stat = String(format: "%.1f tokens/s", tokensPerSecond)
                 }
             }
-            
-            // Small delay for UI updates
-            try await Task.sleep(for: .milliseconds(50))
         }
         
         return fullResponse

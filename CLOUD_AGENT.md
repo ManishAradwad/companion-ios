@@ -29,7 +29,8 @@ To use cloud models:
 4. The key is stored securely in UserDefaults
 
 ### API Key Storage
-- API keys are stored locally on the device
+- API keys are stored locally on the device in UserDefaults
+- **Security Note**: For production use, consider migrating to iOS Keychain for encrypted storage
 - Keys can be set via UserDefaults key: `cloudAPIKey`
 - Environment variable `OPENAI_API_KEY` is also checked on startup
 
@@ -104,8 +105,11 @@ New component for securely entering and saving API keys:
 ## Future Enhancements
 
 Potential improvements for the cloud agent feature:
+- **Security**: Migrate API key storage from UserDefaults to iOS Keychain for encrypted storage
 - Support for additional cloud providers (Anthropic, Google, etc.)
 - Custom model selection in UI
 - Temperature and parameter controls
 - Usage tracking and cost estimation
 - Offline mode with automatic fallback to on-device
+- Batch request optimization
+- Response caching for repeated queries
