@@ -16,7 +16,11 @@ struct ChatView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(DeviceStat.self) private var deviceStat
     
-    @Bindable var llmService: LLMService
+    @Bindable var serviceManager: LLMServiceManager
+    
+    private var llmService: any LLMServiceProtocol {
+        serviceManager.currentService
+    }
     
     @Query(sort: \ChatSession.lastMessageAt, order: .reverse)
     private var sessions: [ChatSession]
@@ -26,6 +30,8 @@ struct ChatView: View {
     @State private var showModelInfo = false
     @State private var showErrorAlert = false
     @State private var errorMessage = ""
+    @State private var showAPIKeySheet = false
+    @State private var apiKeyInput = ""
     
     /// Get the active session (most recent from today, or create new one)
     private var activeSession: ChatSession? {
@@ -52,6 +58,24 @@ struct ChatView: View {
             .navigationTitle("Companion")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        Picker("Model", selection: $serviceManager.currentServiceType) {
+                            ForEach(LLMServiceManager.ServiceType.allCases) { type in
+                                Text(type.rawValue).tag(type)
+                            }
+                        }
+                        
+                        if serviceManager.currentServiceType == .cloud {
+                            Button("Set API Key") {
+                                showAPIKeyAlert()
+                            }
+                        }
+                    } label: {
+                        Label("Settings", systemImage: "ellipsis.circle")
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         createNewSession()
                     } label: {
@@ -68,7 +92,13 @@ struct ChatView: View {
                 }
             }
             .sheet(isPresented: $showModelInfo) {
-                ModelInfoSheet(llmService: llmService, deviceStat: deviceStat)
+                ModelInfoSheet(serviceManager: serviceManager, deviceStat: deviceStat)
+            }
+            .sheet(isPresented: $showAPIKeySheet) {
+                APIKeySheet(apiKeyInput: $apiKeyInput, onSave: {
+                    serviceManager.setCloudAPIKey(apiKeyInput)
+                    showAPIKeySheet = false
+                })
             }
             .alert("Error", isPresented: $showErrorAlert) {
                 Button("OK", role: .cancel) { }
@@ -219,6 +249,11 @@ struct ChatView: View {
     func setSession(_ session: ChatSession) {
         currentSession = session
     }
+    
+    private func showAPIKeyAlert() {
+        apiKeyInput = UserDefaults.standard.string(forKey: "cloudAPIKey") ?? ""
+        showAPIKeySheet = true
+    }
 }
 
 // MARK: - Message Bubble
@@ -278,24 +313,38 @@ struct MessageBubble: View {
 // MARK: - Model Info Sheet
 
 struct ModelInfoSheet: View {
-    let llmService: LLMService
+    let serviceManager: LLMServiceManager
     let deviceStat: DeviceStat
     
     @Environment(\.dismiss) private var dismiss
     
+    private var llmService: any LLMServiceProtocol {
+        serviceManager.currentService
+    }
+    
     var body: some View {
         NavigationStack {
             List {
+                Section("Service Type") {
+                    LabeledContent("Active", value: serviceManager.currentServiceType.rawValue)
+                }
+                
                 Section("Model") {
-                    LabeledContent("Name", value: llmService.modelConfiguration.name)
+                    if serviceManager.currentServiceType == .onDevice {
+                        LabeledContent("Name", value: serviceManager.onDeviceService.modelConfiguration.name)
+                    } else {
+                        LabeledContent("Name", value: "Cloud GPT-4")
+                    }
                     LabeledContent("Status", value: llmService.modelInfo)
                 }
                 
-                Section("GPU Memory") {
-                    LabeledContent("Active", value: deviceStat.gpuUsage.activeMemory.formatted(.byteCount(style: .memory)))
-                    LabeledContent("Cache", value: deviceStat.gpuUsage.cacheMemory.formatted(.byteCount(style: .memory)))
-                    LabeledContent("Peak", value: deviceStat.gpuUsage.peakMemory.formatted(.byteCount(style: .memory)))
-                    LabeledContent("Limit", value: GPU.memoryLimit.formatted(.byteCount(style: .memory)))
+                if serviceManager.currentServiceType == .onDevice {
+                    Section("GPU Memory") {
+                        LabeledContent("Active", value: deviceStat.gpuUsage.activeMemory.formatted(.byteCount(style: .memory)))
+                        LabeledContent("Cache", value: deviceStat.gpuUsage.cacheMemory.formatted(.byteCount(style: .memory)))
+                        LabeledContent("Peak", value: deviceStat.gpuUsage.peakMemory.formatted(.byteCount(style: .memory)))
+                        LabeledContent("Limit", value: GPU.memoryLimit.formatted(.byteCount(style: .memory)))
+                    }
                 }
                 
                 if !llmService.stat.isEmpty {
@@ -317,8 +366,48 @@ struct ModelInfoSheet: View {
     }
 }
 
+// MARK: - API Key Sheet
+
+struct APIKeySheet: View {
+    @Binding var apiKeyInput: String
+    let onSave: () -> Void
+    
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    SecureField("Enter your OpenAI API Key", text: $apiKeyInput)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                } header: {
+                    Text("API Key")
+                } footer: {
+                    Text("Your API key is stored securely on your device and is only used to make requests to the cloud service.")
+                }
+            }
+            .navigationTitle("Cloud API Key")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        onSave()
+                    }
+                    .disabled(apiKeyInput.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
+            }
+        }
+    }
+}
+
 #Preview {
-    ChatView(llmService: LLMService())
+    ChatView(serviceManager: LLMServiceManager())
         .modelContainer(for: [ChatSession.self, ChatMessage.self], inMemory: true)
         .environment(DeviceStat())
 }

@@ -10,17 +10,17 @@ import SwiftData
 
 struct MainTabView: View {
     @State private var selectedTab = 0
-    @State private var llmService = LLMService()
+    @State private var serviceManager = LLMServiceManager()
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            ChatView(llmService: llmService)
+            ChatView(serviceManager: serviceManager)
                 .tabItem {
                     Label("Chat", systemImage: "bubble.left.and.bubble.right")
                 }
                 .tag(0)
             
-            HistoryView(llmService: llmService, selectedTab: $selectedTab)
+            HistoryView(serviceManager: serviceManager, selectedTab: $selectedTab)
                 .tabItem {
                     Label("History", systemImage: "clock")
                 }

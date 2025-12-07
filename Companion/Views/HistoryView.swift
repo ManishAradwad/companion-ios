@@ -12,7 +12,7 @@ import UIKit
 struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
     
-    @Bindable var llmService: LLMService
+    @Bindable var serviceManager: LLMServiceManager
     @Binding var selectedTab: Int
     
     @Query(sort: \ChatSession.lastMessageAt, order: .reverse)
@@ -98,7 +98,7 @@ struct HistoryView: View {
                 }
             }
             .sheet(item: $selectedSession) { session in
-                SessionDetailView(session: session, llmService: llmService)
+                SessionDetailView(session: session, serviceManager: serviceManager)
             }
         }
     }
@@ -180,12 +180,16 @@ struct SessionRow: View {
 
 struct SessionDetailView: View {
     let session: ChatSession
-    let llmService: LLMService
+    let serviceManager: LLMServiceManager
     
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     
     @State private var prompt = ""
+    
+    private var llmService: any LLMServiceProtocol {
+        serviceManager.currentService
+    }
     
     var body: some View {
         NavigationStack {
@@ -255,6 +259,6 @@ struct SessionDetailView: View {
 }
 
 #Preview {
-    HistoryView(llmService: LLMService(), selectedTab: .constant(1))
+    HistoryView(serviceManager: LLMServiceManager(), selectedTab: .constant(1))
         .modelContainer(for: [ChatSession.self, ChatMessage.self], inMemory: true)
 }

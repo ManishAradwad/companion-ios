@@ -20,7 +20,7 @@ typealias DataModelContext = SwiftData.ModelContext
 
 @Observable
 @MainActor
-class LLMService {
+class LLMService: LLMServiceProtocol {
     
     // MARK: - State
     
@@ -65,7 +65,11 @@ class LLMService {
     
     /// Load and return the model -- can be called multiple times, subsequent calls will
     /// just return the loaded model
-    func load() async throws -> LLMModelContainer {
+    func load() async throws {
+        _ = try await loadModel()
+    }
+    
+    private func loadModel() async throws -> LLMModelContainer {
         switch loadState {
         case .idle, .failed:
             loadState = .loading
@@ -149,7 +153,7 @@ class LLMService {
                 
                 let userInput = UserInput(chat: chat)
                 
-                let modelContainer = try await load()
+                let modelContainer = try await loadModel()
                 
                 // Each time you generate you will get something new
                 MLXRandom.seed(UInt64(Date.timeIntervalSinceReferenceDate * 1000))
