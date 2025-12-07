@@ -90,6 +90,7 @@ struct HistoryView: View {
                 }
             }
             .navigationTitle("History")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 if !sessions.isEmpty {
                     ToolbarItem(placement: .navigationBarTrailing) {
