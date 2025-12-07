@@ -31,7 +31,7 @@ class LLMService {
     var downloadProgress: Double = 0
     
     /// The model configuration to use
-    let modelConfiguration = LLMRegistry.qwen3_1_7b_4bit
+    let modelConfiguration = LLMRegistry.qwen3_0_6b_4bit
     
     /// Generation parameters
     let generateParameters = GenerateParameters(maxTokens: 1024, temperature: 0.7)

@@ -55,7 +55,7 @@ struct ChatView: View {
                     Button {
                         createNewSession()
                     } label: {
-                        Label("New Chat", systemImage: "plus.bubble")
+                        Image(systemName: "plus.bubble")
                     }
                 }
                 
@@ -63,7 +63,7 @@ struct ChatView: View {
                     Button {
                         showModelInfo.toggle()
                     } label: {
-                        Label("Model Info", systemImage: "info.circle")
+                        Image(systemName: "info.circle")
                     }
                 }
             }
