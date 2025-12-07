@@ -101,9 +101,16 @@ struct ChatView: View {
                 })
             }
             .alert("Error", isPresented: $showErrorAlert) {
-                Button("OK", role: .cancel) { }
-                Button("Retry") {
-                    Task { await loadModel() }
+                if errorMessage.contains("API key") {
+                    Button("Set API Key") {
+                        showAPIKeyAlert()
+                    }
+                    Button("Cancel", role: .cancel) { }
+                } else {
+                    Button("OK", role: .cancel) { }
+                    Button("Retry") {
+                        Task { await loadModel() }
+                    }
                 }
             } message: {
                 Text(errorMessage)
@@ -111,6 +118,12 @@ struct ChatView: View {
             .task {
                 // Pre-load model on launch
                 await loadModel()
+            }
+            .onChange(of: serviceManager.currentServiceType) { _, _ in
+                // Reload model when switching services
+                Task {
+                    await loadModel()
+                }
             }
         }
     }
@@ -127,9 +140,9 @@ struct ChatView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else if llmService.isLoaded {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
-                Text("Model Ready")
+                Image(systemName: serviceManager.currentServiceType == .cloud ? "cloud.fill" : "checkmark.circle.fill")
+                    .foregroundStyle(serviceManager.currentServiceType == .cloud ? .blue : .green)
+                Text(serviceManager.currentServiceType == .cloud ? "Cloud Model Ready" : "Model Ready")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
@@ -210,7 +223,10 @@ struct ChatView: View {
     
     private func loadModel() async {
         do {
-            _ = try await llmService.load()
+            try await llmService.load()
+        } catch CloudLLMError.noAPIKey {
+            errorMessage = "Cloud mode requires an API key. Please set your API key in the settings menu."
+            showErrorAlert = true
         } catch {
             errorMessage = "Failed to load AI model: \(error.localizedDescription)"
             showErrorAlert = true
