@@ -179,6 +179,8 @@ struct ChatView: View {
     // MARK: - Actions
     
     private func loadModel() async {
+        let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" || ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PLAYGROUNDS"] == "1"
+        if isPreview { return }
         do {
             _ = try await llmService.load()
         } catch {
@@ -292,10 +294,10 @@ struct ModelInfoSheet: View {
                 }
                 
                 Section("GPU Memory") {
-                    LabeledContent("Active", value: deviceStat.gpuUsage.activeMemory.formatted(.byteCount(style: .memory)))
-                    LabeledContent("Cache", value: deviceStat.gpuUsage.cacheMemory.formatted(.byteCount(style: .memory)))
-                    LabeledContent("Peak", value: deviceStat.gpuUsage.peakMemory.formatted(.byteCount(style: .memory)))
-                    LabeledContent("Limit", value: GPU.memoryLimit.formatted(.byteCount(style: .memory)))
+                    LabeledContent("Active", value: (deviceStat.gpuUsage?.activeMemory ?? 0).formatted(.byteCount(style: .memory)))
+                    LabeledContent("Cache", value: (deviceStat.gpuUsage?.cacheMemory ?? 0).formatted(.byteCount(style: .memory)))
+                    LabeledContent("Peak", value: (deviceStat.gpuUsage?.peakMemory ?? 0).formatted(.byteCount(style: .memory)))
+                    LabeledContent("Limit", value: ((ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" || ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PLAYGROUNDS"] == "1") ? 0 : GPU.memoryLimit).formatted(.byteCount(style: .memory)))
                 }
                 
                 if !llmService.stat.isEmpty {

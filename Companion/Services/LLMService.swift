@@ -52,10 +52,12 @@ class LLMService {
     var loadState = LoadState.idle
     
     var isLoaded: Bool {
+        let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" || ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PLAYGROUNDS"] == "1"
+        if isPreview { return true }
         if case .loaded = loadState { return true }
         return false
     }
-    
+
     var isLoading: Bool {
         if case .loading = loadState { return true }
         return false
@@ -66,6 +68,12 @@ class LLMService {
     /// Load and return the model -- can be called multiple times, subsequent calls will
     /// just return the loaded model
     func load() async throws -> LLMModelContainer {
+        let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" || ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PLAYGROUNDS"] == "1"
+
+        if isPreview {
+            throw NSError(domain: "Companion", code: -1, userInfo: [NSLocalizedDescriptionKey: "Preview Mode"])
+        }
+
         switch loadState {
         case .idle, .failed:
             loadState = .loading
@@ -121,7 +129,13 @@ class LLMService {
         modelContext: DataModelContext
     ) {
         guard !running else { return }
-        
+
+        let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" || ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PLAYGROUNDS"] == "1"
+        if isPreview {
+            generatePreview(prompt: prompt, session: session, modelContext: modelContext)
+            return
+        }
+
         generationTask = Task {
             running = true
             output = ""
@@ -215,6 +229,37 @@ class LLMService {
             } catch {
                 output = "Failed: \(error.localizedDescription)"
             }
+            
+            running = false
+        }
+    }
+    
+    private func generatePreview(prompt: String, session: ChatSession, modelContext: DataModelContext) {
+        generationTask = Task {
+            running = true
+            output = ""
+            
+            // Add user message
+            let userMessage = ChatMessage(content: prompt, isUser: true, session: session)
+            modelContext.insert(userMessage)
+            session.lastMessageAt = Date()
+            if session.messages.count <= 1 {
+                session.title = String(prompt.prefix(50))
+            }
+            try? modelContext.save()
+            
+            // Simulate streaming
+            let response = "This is a simulated response in Xcode Preview mode. The actual MLX model is not loaded to prevent crashes."
+            for char in response {
+                try? await Task.sleep(nanoseconds: 50_000_000) // 0.05s
+                output.append(char)
+            }
+            
+            // Save response
+            let assistantMessage = ChatMessage(content: output, isUser: false, session: session)
+            modelContext.insert(assistantMessage)
+            session.lastMessageAt = Date()
+            try? modelContext.save()
             
             running = false
         }

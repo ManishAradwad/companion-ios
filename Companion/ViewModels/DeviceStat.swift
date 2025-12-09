@@ -13,15 +13,25 @@ import UIKit
 final class DeviceStat: @unchecked Sendable {
 
     @MainActor
-    var gpuUsage = GPU.snapshot()
+    var gpuUsage: GPU.Snapshot?
 
-    private let initialGPUSnapshot = GPU.snapshot()
+    private let initialGPUSnapshot: GPU.Snapshot?
     private var timer: Timer?
     private var observers: [NSObjectProtocol] = []
 
     init() {
-        startTimer()
-        setupAppLifecycleObservers()
+        let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" || ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PLAYGROUNDS"] == "1"
+
+        if isPreview {
+            self.gpuUsage = nil
+            self.initialGPUSnapshot = nil
+        } else {
+            let snapshot = GPU.snapshot()
+            self.gpuUsage = snapshot
+            self.initialGPUSnapshot = snapshot
+            startTimer()
+            setupAppLifecycleObservers()
+        }
     }
 
     deinit {
@@ -67,7 +77,8 @@ final class DeviceStat: @unchecked Sendable {
     }
 
     private func updateGPUUsages() {
-        let gpuSnapshotDelta = initialGPUSnapshot.delta(GPU.snapshot())
+        guard let initial = initialGPUSnapshot else { return }
+        let gpuSnapshotDelta = initial.delta(GPU.snapshot())
         DispatchQueue.main.async { [weak self] in
             self?.gpuUsage = gpuSnapshotDelta
         }
