@@ -45,6 +45,7 @@ struct ChatView: View {
                 MessageInputBar(
                     prompt: $prompt,
                     isRunning: llmService.running,
+                    isModelLoaded: llmService.isLoaded,
                     onSend: sendMessage,
                     onCancel: { llmService.cancelGeneration() }
                 )
@@ -192,6 +193,7 @@ struct ChatView: View {
     private func sendMessage() {
         let trimmedPrompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedPrompt.isEmpty else { return }
+        guard llmService.isLoaded else { return }
         
         // Get or create session
         let session: ChatSession

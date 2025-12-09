@@ -228,6 +228,7 @@ struct SessionDetailView: View {
                     MessageInputBar(
                         prompt: $prompt,
                         isRunning: llmService.running,
+                        isModelLoaded: llmService.isLoaded,
                         onSend: sendMessage,
                         onCancel: { llmService.cancelGeneration() }
                     )

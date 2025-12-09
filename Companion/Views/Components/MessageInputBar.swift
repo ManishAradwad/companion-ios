@@ -10,6 +10,7 @@ import SwiftUI
 struct MessageInputBar: View {
     @Binding var prompt: String
     let isRunning: Bool
+    let isModelLoaded: Bool
     let onSend: () -> Void
     let onCancel: () -> Void
     
@@ -24,13 +25,13 @@ struct MessageInputBar: View {
             Divider()
             
             HStack(spacing: 12) {
-                TextField("Message...", text: $prompt, axis: .vertical)
+                TextField(isModelLoaded ? "Message..." : "Loading model...", text: $prompt, axis: .vertical)
                     .textFieldStyle(.plain)
                     .padding(12)
                     .background(Color(.systemGray6))
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                     .lineLimit(1...5)
-                    .disabled(isRunning)
+                    .disabled(isRunning || !isModelLoaded)
                     .focused($isFocused)
                     .submitLabel(.send)
                     .onSubmit {
@@ -46,10 +47,10 @@ struct MessageInputBar: View {
                 } label: {
                     Image(systemName: isRunning ? "stop.circle.fill" : "arrow.up.circle.fill")
                         .font(.title)
-                        .foregroundStyle(isRunning ? .red : (canSend ? .blue : .gray))
+                        .foregroundStyle(isRunning ? .red : (canSend && isModelLoaded ? .blue : .gray))
                         .animation(.easeInOut(duration: 0.15), value: isRunning)
                 }
-                .disabled(!isRunning && !canSend)
+                .disabled((!isRunning && !canSend) || !isModelLoaded)
             }
             .padding()
         }
@@ -78,6 +79,7 @@ struct MessageInputBar: View {
         MessageInputBar(
             prompt: .constant(""),
             isRunning: false,
+            isModelLoaded: true,
             onSend: {},
             onCancel: {}
         )
