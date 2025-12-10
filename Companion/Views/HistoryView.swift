@@ -29,35 +29,41 @@ struct HistoryView: View {
         return formatter
     }()
     
-    /// Group sessions by date
+    /// Cached date formatter for per-day section headers
+    private static let dayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
+    
+    /// Group sessions by exact calendar day (each day is its own section)
     private var groupedSessions: [(String, [ChatSession])] {
         let calendar = Calendar.current
-        let now = Date()
-        
-        let grouped = Dictionary(grouping: sessions) { session -> String in
-            if calendar.isDateInToday(session.createdAt) {
-                return "Today"
-            } else if calendar.isDateInYesterday(session.createdAt) {
-                return "Yesterday"
-            } else if calendar.isDate(session.createdAt, equalTo: now, toGranularity: .weekOfYear) {
-                return "This Week"
-            } else if calendar.isDate(session.createdAt, equalTo: now, toGranularity: .month) {
-                return "This Month"
-            } else {
-                return Self.monthYearFormatter.string(from: session.createdAt)
-            }
+
+        // Group sessions by the start of their calendar day so all sessions
+        // on the same date appear in the same section.
+        let groupedByDay = Dictionary(grouping: sessions) { session in
+            calendar.startOfDay(for: session.createdAt)
         }
-        
-        // Sort groups in chronological order
-        let sortOrder = ["Today", "Yesterday", "This Week", "This Month"]
-        return grouped.sorted { first, second in
-            let firstIndex = sortOrder.firstIndex(of: first.key) ?? Int.max
-            let secondIndex = sortOrder.firstIndex(of: second.key) ?? Int.max
-            if firstIndex != secondIndex {
-                return firstIndex < secondIndex
+
+        // Sort day keys newest-first and map to display strings.
+        let sortedDays = groupedByDay.keys.sorted(by: >)
+
+        return sortedDays.map { day in
+            let sessionsForDay = (groupedByDay[day] ?? []).sorted { $0.lastMessageAt > $1.lastMessageAt }
+
+            // Use relative labels for very recent days
+            let header: String
+            if calendar.isDateInToday(day) {
+                header = "Today"
+            } else if calendar.isDateInYesterday(day) {
+                header = "Yesterday"
+            } else {
+                header = Self.dayFormatter.string(from: day)
             }
-            // For months, sort by date
-            return (first.value.first?.createdAt ?? Date()) > (second.value.first?.createdAt ?? Date())
+
+            return (header, sessionsForDay)
         }
     }
     
