@@ -67,45 +67,85 @@ struct HistoryView: View {
         }
     }
     
+    @State private var isEditing = false
+    
     var body: some View {
         NavigationStack {
-            Group {
+            VStack(spacing: 0) {
+                // Compact header
+                historyHeader
+                
+                // Content
                 if sessions.isEmpty {
+                    Spacer()
                     ContentUnavailableView(
                         "No Chat History",
                         systemImage: "clock",
                         description: Text("Start a conversation in the Chat tab to see your history here.")
                     )
+                    Spacer()
                 } else {
                     List {
                         ForEach(groupedSessions, id: \.0) { section, sessionsInSection in
-                            Section(section) {
+                            Section {
                                 ForEach(sessionsInSection) { session in
                                     SessionRow(session: session)
                                         .contentShape(Rectangle())
                                         .onTapGesture {
-                                            selectSession(session)
+                                            if !isEditing {
+                                                selectSession(session)
+                                            }
                                         }
                                 }
                                 .onDelete { indexSet in
                                     deleteSessions(at: indexSet, from: sessionsInSection)
                                 }
+                            } header: {
+                                Text(section)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(.secondary)
+                                    .textCase(nil)
                             }
                         }
                     }
+                    .listStyle(.plain)
+                    .environment(\.editMode, .constant(isEditing ? .active : .inactive))
                 }
             }
-            .navigationTitle("History")
-            .toolbar {
-                if !sessions.isEmpty {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        EditButton()
-                    }
-                }
-            }
+            .navigationBarHidden(true)
             .sheet(item: $selectedSession) { session in
                 SessionDetailView(session: session, llmService: llmService)
             }
+        }
+    }
+    
+    private var historyHeader: some View {
+        HStack(alignment: .center) {
+            Text("History")
+                .font(.title2)
+                .fontWeight(.bold)
+            
+            Spacer()
+            
+            if !sessions.isEmpty {
+                Button {
+                    withAnimation {
+                        isEditing.toggle()
+                    }
+                } label: {
+                    Text(isEditing ? "Done" : "Edit")
+                        .font(.body)
+                        .foregroundStyle(isEditing ? .blue : .secondary)
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .ignoresSafeArea(edges: .top)
         }
     }
     
@@ -142,43 +182,39 @@ struct SessionRow: View {
     let session: ChatSession
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .center) {
                 Text(session.title)
-                    .font(.headline)
+                    .font(.body)
+                    .fontWeight(.semibold)
                     .lineLimit(1)
                 
                 Spacer()
                 
                 if session.isFrozen {
                     Image(systemName: "lock.fill")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
                 }
             }
             
-            HStack {
+            HStack(spacing: 6) {
                 Text(session.lastMessageAt, style: .relative)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                
                 Text("•")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                
                 Text("\(session.messages.count) messages")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
             }
+            .font(.caption)
+            .foregroundStyle(.secondary)
             
             if let lastMessage = session.sortedMessages.last {
                 Text(lastMessage.content)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.tertiary)
                     .lineLimit(2)
+                    .padding(.top, 2)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 8)
     }
 }
 

@@ -35,8 +35,8 @@ struct ChatView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Model status bar
-                modelStatusBar
+                // Compact header with title, status, and actions
+                compactHeader
                 
                 // Chat messages
                 messageList
@@ -50,24 +50,7 @@ struct ChatView: View {
                     onCancel: { llmService.cancelGeneration() }
                 )
             }
-            .navigationTitle("Companion")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        createNewSession()
-                    } label: {
-                        Image(systemName: "plus.bubble")
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showModelInfo.toggle()
-                    } label: {
-                        Image(systemName: "info.circle")
-                    }
-                }
-            }
+            .navigationBarHidden(true)
             .sheet(isPresented: $showModelInfo) {
                 ModelInfoSheet(llmService: llmService, deviceStat: deviceStat)
             }
@@ -88,44 +71,77 @@ struct ChatView: View {
     
     // MARK: - Subviews
     
-    private var modelStatusBar: some View {
-        HStack {
-            if llmService.isLoading {
-                ProgressView(value: llmService.downloadProgress)
-                    .progressViewStyle(.linear)
-                    .frame(maxWidth: 150)
-                Text(llmService.modelInfo)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } else if llmService.isLoaded {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
-                Text("Model Ready")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } else {
-                Image(systemName: "circle")
-                    .foregroundStyle(.orange)
-                Text("Model Not Loaded")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+    private var compactHeader: some View {
+        HStack(alignment: .center, spacing: 12) {
+            // Title and status
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Companion")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                
+                // Inline status indicator
+                HStack(spacing: 4) {
+                    if llmService.isLoading {
+                        ProgressView()
+                            .scaleEffect(0.6)
+                        Text(llmService.modelInfo)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    } else if llmService.isLoaded {
+                        Circle()
+                            .fill(.green)
+                            .frame(width: 6, height: 6)
+                        Text("Ready")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Circle()
+                            .fill(.orange)
+                            .frame(width: 6, height: 6)
+                        Text("Not Loaded")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    if llmService.running && !llmService.stat.isEmpty {
+                        Text("•")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                        Text(llmService.stat)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
             
             Spacer()
             
-            if llmService.running {
-                ProgressView()
-                    .scaleEffect(0.8)
-                if !llmService.stat.isEmpty {
-                    Text(llmService.stat)
-                        .font(.caption)
+            // Action buttons
+            HStack(spacing: 16) {
+                Button {
+                    createNewSession()
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(.primary)
+                }
+                
+                Button {
+                    showModelInfo.toggle()
+                } label: {
+                    Image(systemName: "info.circle")
+                        .font(.title3)
                         .foregroundStyle(.secondary)
                 }
             }
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(Color(.systemGray6))
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .ignoresSafeArea(edges: .top)
+        }
     }
     
     private var messageList: some View {
