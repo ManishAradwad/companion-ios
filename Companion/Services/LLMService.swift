@@ -25,7 +25,10 @@ class LLMService {
     // MARK: - State
     
     var running = false
-    var output = ""
+    var output = ""  // Raw full output
+    var thinkingOutput = ""  // Extracted thinking tokens during streaming
+    var responseOutput = ""  // Extracted response tokens during streaming
+    var isThinking = false  // Whether currently generating thinking tokens
     var modelInfo = ""
     var stat = ""
     var downloadProgress: Double = 0
@@ -139,6 +142,9 @@ class LLMService {
         generationTask = Task {
             running = true
             output = ""
+            thinkingOutput = ""
+            responseOutput = ""
+            isThinking = false
             
             do {
                 // Add user message to session
@@ -198,6 +204,7 @@ class LLMService {
                         if !outputChunk.isEmpty {
                             Task { @MainActor [outputChunk] in
                                 self.output += outputChunk
+                                self.updateStreamingState()
                             }
                         }
                         
@@ -211,7 +218,13 @@ class LLMService {
                 
                 // Save assistant response to session
                 if !output.isEmpty {
-                    let assistantMessage = ChatMessage(content: output, isUser: false, session: session)
+                    let (thinking, response) = parseThinkingTokens(output)
+                    let assistantMessage = ChatMessage(
+                        content: response,
+                        isUser: false,
+                        thinkingContent: thinking,
+                        session: session
+                    )
                     modelContext.insert(assistantMessage)
                     session.lastMessageAt = Date()
                     try modelContext.save()
@@ -221,7 +234,13 @@ class LLMService {
                 // Handle cancellation gracefully
                 if !output.isEmpty {
                     // Save partial response
-                    let assistantMessage = ChatMessage(content: output + " [cancelled]", isUser: false, session: session)
+                    let (thinking, response) = parseThinkingTokens(output)
+                    let assistantMessage = ChatMessage(
+                        content: response + " [cancelled]",
+                        isUser: false,
+                        thinkingContent: thinking,
+                        session: session
+                    )
                     modelContext.insert(assistantMessage)
                     session.lastMessageAt = Date()
                     try? modelContext.save()
@@ -269,6 +288,76 @@ class LLMService {
     func cancelGeneration() {
         generationTask?.cancel()
         running = false
+    }
+    
+    // MARK: - Streaming State Management
+    
+    /// Update the streaming state by parsing thinking tokens in real-time
+    private func updateStreamingState() {
+        let text = output
+        
+        // Check if we have a <think> tag
+        if let thinkStart = text.range(of: "<think>") {
+            // Check if thinking is complete (has closing tag)
+            if let thinkEnd = text.range(of: "</think>") {
+                // Thinking is complete
+                isThinking = false
+                
+                // Extract thinking content
+                let thinkingStartIndex = thinkStart.upperBound
+                let thinkingEndIndex = thinkEnd.lowerBound
+                thinkingOutput = String(text[thinkingStartIndex..<thinkingEndIndex])
+                
+                // Extract response (everything after </think>)
+                let responseStartIndex = thinkEnd.upperBound
+                responseOutput = String(text[responseStartIndex...]).trimmingCharacters(in: .whitespacesAndNewlines)
+            } else {
+                // Still thinking (no closing tag yet)
+                isThinking = true
+                
+                // Extract partial thinking content
+                let thinkingStartIndex = thinkStart.upperBound
+                thinkingOutput = String(text[thinkingStartIndex...])
+                responseOutput = ""
+            }
+        } else {
+            // No thinking tags, treat entire output as response
+            isThinking = false
+            thinkingOutput = ""
+            responseOutput = text
+        }
+    }
+    
+    // MARK: - Thinking Token Parsing
+    
+    /// Parse thinking tokens from output, returns (thinkingContent, responseContent)
+    private func parseThinkingTokens(_ text: String) -> (thinking: String?, response: String) {
+        // Look for <think>...</think> or similar patterns
+        let pattern = "<think>(.*?)</think>"
+        
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.dotMatchesLineSeparators]) else {
+            return (nil, text)
+        }
+        
+        let nsString = text as NSString
+        let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
+        
+        guard let match = matches.first, match.numberOfRanges > 1 else {
+            return (nil, text)
+        }
+        
+        let thinkingRange = match.range(at: 1)
+        let thinking = nsString.substring(with: thinkingRange)
+        
+        // Remove the entire <think>...</think> block from response
+        let responseText = regex.stringByReplacingMatches(
+            in: text,
+            options: [],
+            range: NSRange(location: 0, length: nsString.length),
+            withTemplate: ""
+        ).trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        return (thinking, responseText)
     }
 }
 

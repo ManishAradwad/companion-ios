@@ -14,14 +14,16 @@ final class ChatMessage {
     var content: String
     var isUser: Bool
     var timestamp: Date
+    var thinkingContent: String?
     
     var session: ChatSession?
     
-    init(content: String, isUser: Bool, session: ChatSession? = nil) {
+    init(content: String, isUser: Bool, thinkingContent: String? = nil, session: ChatSession? = nil) {
         self.id = UUID()
         self.content = content
         self.isUser = isUser
         self.timestamp = Date()
+        self.thinkingContent = thinkingContent
         self.session = session
     }
 }

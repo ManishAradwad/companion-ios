@@ -155,11 +155,11 @@ struct ChatView: View {
                         }
                         
                         // Show streaming output
-                        if llmService.running && !llmService.output.isEmpty {
-                            MessageBubble(
-                                content: llmService.output,
-                                isUser: false,
-                                isStreaming: true
+                        if llmService.running {
+                            StreamingMessageBubble(
+                                thinkingOutput: llmService.thinkingOutput,
+                                responseOutput: llmService.responseOutput,
+                                isThinking: llmService.isThinking
                             )
                             .id("streaming")
                         }
@@ -241,22 +241,169 @@ struct ChatView: View {
     }
 }
 
+// MARK: - Thinking View
+
+struct ThinkingView: View {
+    let thinkingContent: String
+    @State private var isExpanded = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Button {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    isExpanded.toggle()
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    
+                    Text("Thinking...")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(.secondary)
+                    
+                    Spacer()
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color(.systemGray6))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
+            
+            if isExpanded {
+                Text(thinkingContent)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(.systemGray6).opacity(0.5))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+    }
+}
+
+// MARK: - Streaming Message Bubble
+
+struct StreamingMessageBubble: View {
+    let thinkingOutput: String
+    let responseOutput: String
+    let isThinking: Bool
+    
+    @State private var isThinkingExpanded = false
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 8) {
+                // Show thinking section if we have thinking content or are currently thinking
+                if !thinkingOutput.isEmpty || isThinking {
+                    StreamingThinkingView(
+                        thinkingContent: thinkingOutput,
+                        isThinking: isThinking,
+                        isExpanded: $isThinkingExpanded
+                    )
+                }
+                
+                // Show response section if we have response content
+                if !responseOutput.isEmpty {
+                    Markdown(responseOutput)
+                        .textSelection(.enabled)
+                        .padding(12)
+                        .background(Color(.systemGray5))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                    
+                    HStack(spacing: 4) {
+                        ProgressView()
+                            .scaleEffect(0.6)
+                        Text("Generating...")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            
+            Spacer(minLength: 60)
+        }
+    }
+}
+
+// MARK: - Streaming Thinking View
+
+struct StreamingThinkingView: View {
+    let thinkingContent: String
+    let isThinking: Bool
+    @Binding var isExpanded: Bool
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Button {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    isExpanded.toggle()
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    
+                    HStack(spacing: 6) {
+                        Text("Thinking...")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.secondary)
+                        
+                        if isThinking {
+                            ProgressView()
+                                .scaleEffect(0.6)
+                        }
+                    }
+                    
+                    Spacer()
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color(.systemGray6))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
+            
+            if isExpanded && !thinkingContent.isEmpty {
+                Text(thinkingContent)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(.systemGray6).opacity(0.5))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+    }
+}
+
 // MARK: - Message Bubble
 
 struct MessageBubble: View {
     var content: String
     var isUser: Bool
+    var thinkingContent: String?
     var isStreaming: Bool = false
     
     init(message: ChatMessage) {
         self.content = message.content
         self.isUser = message.isUser
+        self.thinkingContent = message.thinkingContent
         self.isStreaming = false
     }
     
-    init(content: String, isUser: Bool, isStreaming: Bool = false) {
+    init(content: String, isUser: Bool, thinkingContent: String? = nil, isStreaming: Bool = false) {
         self.content = content
         self.isUser = isUser
+        self.thinkingContent = thinkingContent
         self.isStreaming = isStreaming
     }
     
@@ -264,7 +411,7 @@ struct MessageBubble: View {
         HStack {
             if isUser { Spacer(minLength: 60) }
             
-            VStack(alignment: isUser ? .trailing : .leading, spacing: 4) {
+            VStack(alignment: isUser ? .trailing : .leading, spacing: 8) {
                 if isUser {
                     Text(content)
                         .padding(12)
@@ -272,20 +419,18 @@ struct MessageBubble: View {
                         .foregroundStyle(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 } else {
-                    Markdown(content)
-                        .textSelection(.enabled)
-                        .padding(12)
-                        .background(Color(.systemGray5))
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                }
-                
-                if isStreaming {
-                    HStack(spacing: 4) {
-                        ProgressView()
-                            .scaleEffect(0.6)
-                        Text("Generating...")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
+                    // Show thinking section if present
+                    if let thinking = thinkingContent, !thinking.isEmpty {
+                        ThinkingView(thinkingContent: thinking)
+                    }
+                    
+                    // Only show response bubble if there's content
+                    if !content.isEmpty {
+                        Markdown(content)
+                            .textSelection(.enabled)
+                            .padding(12)
+                            .background(Color(.systemGray5))
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
                 }
             }

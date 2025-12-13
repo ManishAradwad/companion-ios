@@ -10,6 +10,7 @@ import SwiftUI
 
 @main
 struct CompanionApp: App {
+    // define persistable model types in this ModelContainer
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             ChatSession.self,
