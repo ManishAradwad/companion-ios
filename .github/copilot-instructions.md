@@ -1,7 +1,7 @@
 # Companion iOS - AI Coding Agent Guidelines
 
 ## Project Overview
-**Companion** is an iOS app for on-device AI-powered journaling/assistant features, built with SwiftUI, SwiftData, and MLX for local LLM inference.
+**Companion** is an early-stage iOS app for on-device AI-powered journaling/assistant features, built with SwiftUI, SwiftData, and MLX for local LLM inference. I want this app to be used by user for keeping track of their life in general. It can be a friend which they can talk to about anything and everything. I want this app to also store a `personality` of the user, it can help the users to learn more about themselves over time. 
 
 ## Current Architecture
 
@@ -23,7 +23,9 @@ Companion/
 ├── Views/
 │   ├── MainTabView.swift       # Tab-based navigation (Chat + History)
 │   ├── ChatView.swift          # Chat interface with streaming responses
-│   └── HistoryView.swift       # Session history with date grouping
+│   ├── HistoryView.swift       # Session history with date grouping
+│   └── Components/
+│       └── MessageInputBar.swift  # Reusable message input component
 └── Assets.xcassets/
 ```
 
@@ -96,3 +98,97 @@ Located in `Companion/Companion.entitlements`:
 - MainActor for UI state updates during streaming
 - Prefer `Task { @MainActor in }` for cross-actor updates
 - Use `@Bindable` for two-way binding with Observable classes
+
+### Preview Mode Detection
+Always guard async operations in previews to avoid crashes:
+```swift
+let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" 
+    || ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PLAYGROUNDS"] == "1"
+if isPreview { return }
+```
+
+### MARK Section Organization
+Organize files with consistent MARK comments:
+```swift
+// MARK: - State
+// MARK: - Load State
+// MARK: - Computed Properties
+// MARK: - Model Loading
+// MARK: - Generation
+// MARK: - Subviews
+// MARK: - Actions
+// MARK: - Cached Formatters
+```
+
+### Cached Formatters
+DateFormatters are expensive—cache them as static properties:
+```swift
+private static let dayFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .medium
+    formatter.timeStyle = .none
+    return formatter
+}()
+```
+
+### Haptic Feedback
+Use haptics for user interactions:
+```swift
+// Light tap feedback
+UIImpactFeedbackGenerator(style: .light).impactOccurred()
+
+// Success/warning notifications
+UINotificationFeedbackGenerator().notificationOccurred(.success)
+UINotificationFeedbackGenerator().notificationOccurred(.warning)
+```
+
+### Error Handling Pattern
+Use `LocalizedError` for custom errors with user-facing messages:
+```swift
+enum LLMServiceError: LocalizedError {
+    case alreadyLoading
+    case modelNotLoaded
+    
+    var errorDescription: String? {
+        switch self {
+        case .alreadyLoading: return "Model is already loading"
+        case .modelNotLoaded: return "Model not loaded"
+        }
+    }
+}
+```
+
+### SwiftUI View Structure
+Follow this structure for new views:
+```swift
+struct MyView: View {
+    // Environment properties
+    @Environment(\.modelContext) private var modelContext
+    
+    // Bindable services
+    @Bindable var llmService: LLMService
+    
+    // Query properties
+    @Query(sort: \ChatSession.lastMessageAt, order: .reverse)
+    private var sessions: [ChatSession]
+    
+    // Local state
+    @State private var myState = ""
+    
+    // Computed properties
+    private var computedValue: String { ... }
+    
+    var body: some View { ... }
+    
+    // MARK: - Subviews
+    private var mySubview: some View { ... }
+    
+    // MARK: - Actions
+    private func myAction() { ... }
+}
+
+#Preview {
+    MyView(llmService: LLMService())
+        .modelContainer(for: [ChatSession.self, ChatMessage.self], inMemory: true)
+}
+```
