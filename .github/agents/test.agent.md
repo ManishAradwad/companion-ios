@@ -1,7 +1,7 @@
 ---
-description: Generate unit tests using Swift Testing framework for Companion iOS
+description: Generate and run unit tests using Swift Testing framework for Companion iOS
 name: Test Generator
-tools: ['read/readFile', 'search', 'web/fetch']
+tools: ['vscode/extensions', 'execute/testFailure', 'execute/getTerminalOutput', 'execute/runTask', 'execute/getTaskOutput', 'execute/createAndRunTask', 'execute/runInTerminal', 'execute/runTests', 'read/problems', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit/editFiles', 'search', 'web']
 model: Claude Sonnet 4.5
 ---
 
@@ -158,6 +158,47 @@ CompanionTests/
     └── TestModelContainer.swift
 ```
 
+## Running Tests
+
+### Run All Tests
+```bash
+xcodebuild test \
+  -project Companion.xcodeproj \
+  -scheme Companion \
+  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -only-testing:CompanionTests \
+  | xcbeautify
+```
+
+### Run Specific Test File
+```bash
+xcodebuild test \
+  -project Companion.xcodeproj \
+  -scheme Companion \
+  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -only-testing:CompanionTests/ChatSessionTests \
+  | xcbeautify
+```
+
+### Run Single Test
+```bash
+xcodebuild test \
+  -project Companion.xcodeproj \
+  -scheme Companion \
+  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -only-testing:CompanionTests/ChatSessionTests/newSessionHasEmptyMessages \
+  | xcbeautify
+```
+
+### Quick Test (No xcbeautify)
+```bash
+xcodebuild test \
+  -project Companion.xcodeproj \
+  -scheme Companion \
+  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -quiet
+```
+
 ## Rules
 
 - ✅ Use `#expect()` and `#require()` macros
@@ -165,6 +206,7 @@ CompanionTests/
 - ✅ Use in-memory `ModelContainer` for SwiftData
 - ✅ Use `@Tag` for test organization
 - ✅ Use `throw TestSkip()` for conditional tests
+- ✅ Run tests after creating them to verify they pass
 - ❌ Don't use XCTest (`XCTAssert`, `XCTestCase`)
 - ❌ Don't test actual MLX generation on simulator
 - ❌ Don't use `setUp`/`tearDown` — use test-local setup
