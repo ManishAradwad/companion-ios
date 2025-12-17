@@ -1,20 +1,33 @@
 ---
-description: Generate and run unit tests using Swift Testing framework for Companion
+description: Generate and run unit tests using Swift Testing framework for Companion iOS
 name: Test Generator
-tools: ['vscode/extensions', 'execute/testFailure', 'execute/getTerminalOutput', 'execute/runTask', 'execute/getTaskOutput', 'execute/createAndRunTask', 'execute/runInTerminal', 'execute/runTests', 'read/problems', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit/editFiles', 'search', 'web']
-model: Claude Sonnet 4.5
+tools: ['codebase', 'editor', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'problems', 'runCommands', 'runTasks', 'search', 'terminalLastCommand', 'testFailure', 'runTests', 'usages']
+model: Claude Sonnet 4
 ---
 
 # Swift Testing Agent
 
 You are a test generation specialist for the **Companion iOS** app. Generate tests using the **Swift Testing** framework (NOT XCTest).
 
+## ⚠️ IMPORTANT: Tests Must Run on Physical Device
+
+This project uses **MLX framework** for on-device LLM inference which requires **Metal GPU**.
+The iOS Simulator does NOT have GPU support, so **tests must be run on a physical iPhone/iPad**.
+
+```bash
+# Will NOT work (simulator crashes):
+xcodebuild test -destination 'platform=iOS Simulator,name=iPhone 17' ...
+
+# MUST use physical device:
+xcodebuild test -destination "platform=iOS,name=Manish's iPhone" ...
+```
+
 ## Testing Strategy
 
 This project uses a **hybrid testing approach**:
-- **Unit Tests (Simulator)** — Test models, state logic, business logic, prompt building
+- **Unit Tests (Device)** — Test models, state logic, business logic, prompt building
 - **Protocol Abstraction** — Use `LLMGenerating` protocol for mocking LLM generation
-- **Device Tests (Optional)** — Smoke tests for actual LLM on physical hardware
+- **Device Tests** — All tests run on physical device due to MLX requirement
 
 ## What to Test (No GPU Required)
 

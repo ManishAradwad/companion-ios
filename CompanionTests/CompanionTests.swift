@@ -4,6 +4,10 @@
 //
 //  Created by Manish Aradwad on 12/16/25.
 //
+//  NOTE: These tests must be run on a PHYSICAL DEVICE, not the simulator.
+//  The MLX framework requires Metal GPU which is not available on iOS Simulator.
+//  Run with: xcodebuild test -project Companion.xcodeproj -scheme Companion -destination "platform=iOS,name=<YourDeviceName>"
+//
 
 import Testing
 import SwiftData

@@ -91,6 +91,8 @@ Located in `Companion/Companion.entitlements`:
 - **Release builds** recommended for large models (avoids stack overflow in Debug)
 - Disable debugger for performance: `cmd+opt+r` → uncheck "Debug Executable"
 - First launch downloads model (~2GB) - progress shown in UI
+- **Simulator not supported**: MLX requires Metal GPU — app crashes on iOS Simulator
+- **Tests require physical device**: Run tests on iPhone/iPad, not simulator
 
 ## Code Style
 - SwiftUI with `@Observable` (not ObservableObject)
