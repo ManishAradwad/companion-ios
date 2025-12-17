@@ -1,7 +1,7 @@
 ---
 description: Generate and run unit tests using Swift Testing framework for Companion iOS
 name: Test Generator
-tools: ['codebase', 'editor', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'problems', 'runCommands', 'runTasks', 'search', 'terminalLastCommand', 'testFailure', 'runTests', 'usages']
+tools: ['vscode/extensions', 'execute/testFailure', 'execute/getTerminalOutput', 'execute/runTask', 'execute/getTaskOutput', 'execute/createAndRunTask', 'execute/runInTerminal', 'execute/runTests', 'read/problems', 'read/readFile', 'read/terminalSelection', 'read/terminalLastCommand', 'edit/editFiles', 'search', 'web']
 model: Claude Sonnet 4
 ---
 
