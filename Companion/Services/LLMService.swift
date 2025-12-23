@@ -5,13 +5,136 @@
 //  LLM service adapted from LLMEval with session-aware message handling
 //
 
-import AsyncAlgorithms
 import Foundation
+import SwiftData
+import SwiftUI
+
+#if targetEnvironment(simulator)
+// MARK: - Simulator Stub Implementation
+// MLX requires Metal GPU which is not available on iOS Simulator.
+// This stub allows the app to compile and run tests on simulator.
+
+typealias DataModelContext = SwiftData.ModelContext
+
+/// Stub model configuration for simulator
+struct SimulatorModelConfiguration {
+    let name: String = "Simulator Stub"
+    let id: String = "simulator-stub"
+}
+
+@Observable
+@MainActor
+class LLMService {
+    
+    // MARK: - State
+    
+    var running = false
+    var output = ""
+    var thinkingOutput = ""
+    var responseOutput = ""
+    var isThinking = false
+    var modelInfo = "Simulator Mode"
+    var stat = ""
+    var downloadProgress: Double = 0
+    
+    /// Stub model configuration for API compatibility
+    let modelConfiguration = SimulatorModelConfiguration()
+    
+    var generationTask: Task<Void, Error>?
+    
+    // MARK: - Load State
+    
+    enum LoadState: Equatable {
+        case idle
+        case loading
+        case loaded
+        case failed(String)
+        
+        static func == (lhs: LoadState, rhs: LoadState) -> Bool {
+            switch (lhs, rhs) {
+            case (.idle, .idle), (.loading, .loading), (.loaded, .loaded):
+                return true
+            case (.failed(let a), .failed(let b)):
+                return a == b
+            default:
+                return false
+            }
+        }
+    }
+    
+    var loadState = LoadState.idle
+    
+    var isLoaded: Bool {
+        if case .loaded = loadState { return true }
+        return true // Always "ready" on simulator for testing
+    }
+
+    var isLoading: Bool {
+        if case .loading = loadState { return true }
+        return false
+    }
+    
+    // MARK: - Stub Methods
+    
+    /// Stub load method - immediately returns on simulator
+    func load() async throws {
+        loadState = .loaded
+    }
+    
+    func generate(
+        prompt: String,
+        session: ChatSession,
+        modelContext: DataModelContext
+    ) {
+        guard !running else { return }
+        
+        generationTask = Task {
+            running = true
+            output = ""
+            
+            // Add user message
+            let userMessage = ChatMessage(content: prompt, isUser: true, session: session)
+            modelContext.insert(userMessage)
+            session.lastMessageAt = Date()
+            if session.messages.count <= 1 {
+                session.title = String(prompt.prefix(50))
+                if prompt.count > 50 {
+                    session.title += "..."
+                }
+            }
+            try? modelContext.save()
+            
+            // Simulate streaming response
+            let response = "[Simulator] MLX is not available on iOS Simulator. Run on a physical device for actual LLM responses."
+            for char in response {
+                try? await Task.sleep(nanoseconds: 30_000_000)
+                output.append(char)
+                responseOutput = output
+            }
+            
+            // Save response
+            let assistantMessage = ChatMessage(content: output, isUser: false, session: session)
+            modelContext.insert(assistantMessage)
+            session.lastMessageAt = Date()
+            try? modelContext.save()
+            
+            running = false
+        }
+    }
+    
+    func cancelGeneration() {
+        generationTask?.cancel()
+        running = false
+    }
+}
+
+#else
+// MARK: - Real Device Implementation
+
+import AsyncAlgorithms
 import MLX
 import MLXLLM
 import MLXLMCommon
-import SwiftData
-import SwiftUI
 
 // Type alias to avoid conflict between SwiftData and MLXLMCommon types
 typealias LLMModelContext = MLXLMCommon.ModelContext
@@ -360,6 +483,8 @@ class LLMService {
         return (thinking, responseText)
     }
 }
+
+#endif
 
 // MARK: - Errors
 

@@ -6,11 +6,14 @@
 //
 
 import MarkdownUI
-import MLX
 import SwiftData
 import SwiftUI
-import MLXLMCommon
 import UIKit
+
+#if !targetEnvironment(simulator)
+import MLX
+import MLXLMCommon
+#endif
 
 struct ChatView: View {
     @Environment(\.modelContext) private var modelContext
@@ -460,7 +463,11 @@ struct ModelInfoSheet: View {
                     LabeledContent("Active", value: (deviceStat.gpuUsage?.activeMemory ?? 0).formatted(.byteCount(style: .memory)))
                     LabeledContent("Cache", value: (deviceStat.gpuUsage?.cacheMemory ?? 0).formatted(.byteCount(style: .memory)))
                     LabeledContent("Peak", value: (deviceStat.gpuUsage?.peakMemory ?? 0).formatted(.byteCount(style: .memory)))
+                    #if targetEnvironment(simulator)
+                    LabeledContent("Limit", value: "N/A (Simulator)")
+                    #else
                     LabeledContent("Limit", value: ((ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" || ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PLAYGROUNDS"] == "1") ? 0 : GPU.memoryLimit).formatted(.byteCount(style: .memory)))
+                    #endif
                 }
                 
                 if !llmService.stat.isEmpty {

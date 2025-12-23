@@ -9,25 +9,30 @@ model: Claude Sonnet 4
 
 You are a test generation specialist for the **Companion iOS** app. Generate tests using the **Swift Testing** framework (NOT XCTest).
 
-## ⚠️ IMPORTANT: Tests Must Run on Physical Device
+## ✅ Tests Run on iOS Simulator
 
-This project uses **MLX framework** for on-device LLM inference which requires **Metal GPU**.
-The iOS Simulator does NOT have GPU support, so **tests must be run on a physical iPhone/iPad**.
+This project uses **conditional compilation** (`#if targetEnvironment(simulator)`) to provide stub implementations for MLX-dependent code. This allows tests to run on iOS Simulator without GPU.
 
 ```bash
-# Will NOT work (simulator crashes):
-xcodebuild test -destination 'platform=iOS Simulator,name=iPhone 17' ...
-
-# MUST use physical device:
-xcodebuild test -destination "platform=iOS,name=Manish's iPhone" ...
+# Run tests on simulator:
+xcodebuild test \
+  -project Companion.xcodeproj \
+  -scheme Companion \
+  -destination 'platform=iOS Simulator,name=iPhone 17'
 ```
+
+### How It Works
+- `LLMService.swift` has two implementations: simulator stub and real device (MLX)
+- `DeviceStat.swift` provides `GPUUsageStub` on simulator
+- `ChatView.swift` conditionally imports MLX only on device
+- On simulator, `LoadState.loaded` has no associated value (no `LLMModelContainer`)
 
 ## Testing Strategy
 
 This project uses a **hybrid testing approach**:
-- **Unit Tests (Device)** — Test models, state logic, business logic, prompt building
-- **Protocol Abstraction** — Use `LLMGenerating` protocol for mocking LLM generation
-- **Device Tests** — All tests run on physical device due to MLX requirement
+- **Unit Tests (Simulator)** — Test models, state logic, business logic, prompt building
+- **Stub LLMService** — Simulator builds use a stub that simulates loading/generation
+- **Full LLM Tests** — Only on physical device (optional)
 
 ## What to Test (No GPU Required)
 
@@ -41,9 +46,9 @@ This project uses a **hybrid testing approach**:
 
 ## What NOT to Test Directly
 
-- `LLMModelFactory.shared.loadContainer()` — Requires GPU
-- `MLXLMCommon.generate()` — Requires GPU
-- Use mocks with `LLMGenerating` protocol instead
+- `LLMModelFactory.shared.loadContainer()` — Only available on device builds
+- `MLXLMCommon.generate()` — Only available on device builds
+- On simulator, test the stub behavior instead (e.g., `LoadState` transitions)
 
 ## Swift Testing Patterns
 
@@ -111,14 +116,14 @@ func cascadeDeleteMessages() throws {
 }
 ```
 
-### Skip Tests on Simulator
+### Skip Tests on Simulator (Optional)
 ```swift
-@Test("Actual LLM generation")
+@Test("Actual LLM generation - device only")
 func actualLLMGeneration() async throws {
     #if targetEnvironment(simulator)
     throw TestSkip("Requires physical device with GPU")
     #endif
-    // Real LLM test here
+    // Real LLM test here - only runs on device
 }
 ```
 
@@ -178,7 +183,7 @@ CompanionTests/
 xcodebuild test \
   -project Companion.xcodeproj \
   -scheme Companion \
-  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
   -only-testing:CompanionTests \
   | xcbeautify
 ```
@@ -188,7 +193,7 @@ xcodebuild test \
 xcodebuild test \
   -project Companion.xcodeproj \
   -scheme Companion \
-  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
   -only-testing:CompanionTests/ChatSessionTests \
   | xcbeautify
 ```
@@ -198,7 +203,7 @@ xcodebuild test \
 xcodebuild test \
   -project Companion.xcodeproj \
   -scheme Companion \
-  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
   -only-testing:CompanionTests/ChatSessionTests/newSessionHasEmptyMessages \
   | xcbeautify
 ```
@@ -208,7 +213,7 @@ xcodebuild test \
 xcodebuild test \
   -project Companion.xcodeproj \
   -scheme Companion \
-  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
   -quiet
 ```
 

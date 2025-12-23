@@ -278,40 +278,56 @@ struct SwiftDataTests {
 
 struct LLMServiceStateTests {
     
-    // Note: LLMService tests are limited because instantiating it on simulator
-    // can trigger MLX initialization which requires GPU.
-    // Test only the error types and basic patterns.
-    
     @Test("LoadState idle is the initial expected state")
     func loadStateIdleIsInitial() {
-        // Just verify the enum case exists and pattern matches
         let state = LLMService.LoadState.idle
-        if case .idle = state {
-            #expect(true)
-        } else {
-            #expect(Bool(false), "Expected idle state")
-        }
+        #expect(state == .idle)
     }
     
     @Test("LoadState loading case exists")
     func loadStateLoadingExists() {
         let state = LLMService.LoadState.loading
-        if case .loading = state {
-            #expect(true)
-        } else {
-            #expect(Bool(false), "Expected loading state")
-        }
+        #expect(state == .loading)
     }
     
-    @Test("LoadState failed case stores error")
-    func loadStateFailedStoresError() {
-        let testError = NSError(domain: "Test", code: 1)
-        let state = LLMService.LoadState.failed(testError)
-        if case .failed(let error) = state {
-            #expect((error as NSError).domain == "Test")
+    @Test("LoadState loaded case exists")
+    func loadStateLoadedExists() {
+        let state = LLMService.LoadState.loaded
+        #expect(state == .loaded)
+    }
+    
+    @Test("LoadState failed case stores message")
+    func loadStateFailedStoresMessage() {
+        let state = LLMService.LoadState.failed("Test error")
+        if case .failed(let message) = state {
+            #expect(message == "Test error")
         } else {
             #expect(Bool(false), "Expected failed state")
         }
+    }
+    
+    @Test("LLMService can be instantiated on simulator")
+    @MainActor
+    func serviceCanBeInstantiated() {
+        let service = LLMService()
+        #expect(service.loadState == .idle)
+        #expect(!service.running)
+        #expect(service.output.isEmpty)
+    }
+    
+    @Test("LLMService isLoaded returns true on simulator")
+    @MainActor
+    func serviceIsLoadedOnSimulator() {
+        let service = LLMService()
+        // Simulator stub always reports as loaded
+        #expect(service.isLoaded)
+    }
+    
+    @Test("LLMService isLoading returns false when idle")
+    @MainActor
+    func serviceIsNotLoadingWhenIdle() {
+        let service = LLMService()
+        #expect(!service.isLoading)
     }
 }
 

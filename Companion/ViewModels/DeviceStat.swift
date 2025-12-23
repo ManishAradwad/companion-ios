@@ -6,8 +6,30 @@
 //
 
 import Foundation
-import MLX
 import UIKit
+
+#if targetEnvironment(simulator)
+// MARK: - Simulator Stub
+
+/// Stub GPU usage for simulator
+struct GPUUsageStub {
+    let activeMemory: UInt64 = 0
+    let cacheMemory: UInt64 = 0
+    let peakMemory: UInt64 = 0
+}
+
+@Observable
+final class DeviceStat: @unchecked Sendable {
+    @MainActor
+    var gpuUsage: GPUUsageStub? = GPUUsageStub()
+    
+    init() {}
+}
+
+#else
+// MARK: - Real Device Implementation
+
+import MLX
 
 @Observable
 final class DeviceStat: @unchecked Sendable {
@@ -84,3 +106,5 @@ final class DeviceStat: @unchecked Sendable {
         }
     }
 }
+
+#endif
