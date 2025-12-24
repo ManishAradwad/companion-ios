@@ -378,6 +378,60 @@ struct InputValidationTests {
     }
 }
 
+// MARK: - System Prompt Tests
+
+struct SystemPromptTests {
+    
+    @Test("System prompt loads from bundle")
+    func systemPromptLoadsFromBundle() {
+        guard let url = Bundle.main.url(forResource: "system_prompt", withExtension: "txt"),
+              let content = try? String(contentsOf: url, encoding: .utf8) else {
+            #expect(Bool(false), "System prompt file should exist and be readable")
+            return
+        }
+        
+        let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+        #expect(!trimmed.isEmpty)
+    }
+    
+    @Test("System prompt contains app name")
+    func systemPromptContainsAppName() {
+        guard let url = Bundle.main.url(forResource: "system_prompt", withExtension: "txt"),
+              let content = try? String(contentsOf: url, encoding: .utf8) else {
+            #expect(Bool(false), "System prompt file should exist")
+            return
+        }
+        
+        #expect(content.contains("Companion"))
+    }
+    
+    @Test("System prompt explains app purpose")
+    func systemPromptExplainsAppPurpose() {
+        guard let url = Bundle.main.url(forResource: "system_prompt", withExtension: "txt"),
+              let content = try? String(contentsOf: url, encoding: .utf8) else {
+            #expect(Bool(false), "System prompt file should exist")
+            return
+        }
+        
+        // Check for key concepts
+        #expect(content.contains("journaling") || content.contains("journal"))
+        #expect(content.contains("reflect") || content.contains("reflection"))
+    }
+    
+    @Test("System prompt is not too long for small models")
+    func systemPromptIsReasonableLength() {
+        guard let url = Bundle.main.url(forResource: "system_prompt", withExtension: "txt"),
+              let content = try? String(contentsOf: url, encoding: .utf8) else {
+            #expect(Bool(false), "System prompt file should exist")
+            return
+        }
+        
+        // Rough estimate: ~4 characters per token
+        // Target is under 500 tokens, so under ~2000 characters
+        #expect(content.count < 2000)
+    }
+}
+
 // MARK: - Date Grouping Tests (for HistoryView logic)
 
 struct DateGroupingTests {
