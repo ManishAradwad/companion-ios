@@ -51,23 +51,41 @@ jobs:
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath TestResults.xcresult \
-            2>&1 | tee test_output.log | xcpretty --color --test
+            2>&1 | tee test_output_raw.log | xcpretty --color --test | tee test_output.log
 
       - name: Extract Test Results
         if: always()
         run: |
-          # Parse test output log for summary
+          echo "# Test Results" > test_summary.md
+          echo "" >> test_summary.md
+          
+          # Extract from raw xcodebuild output (more reliable)
+          if [ -f "test_output_raw.log" ]; then
+            # Get test summary
+            grep -A 20 "Test Suite.*passed\|Test Suite.*failed" test_output_raw.log | tail -20 > test_summary.txt || true
+            
+            # Get passed/failed counts
+            PASSED=$(grep -o "Executed [0-9]* tests, with [0-9]* failures" test_output_raw.log | tail -1 || echo "")
+            TOTAL=$(grep -o "Test Suite.*finished at.*[0-9]* passed" test_output_raw.log | tail -1 || echo "")
+            
+            if [ ! -z "$PASSED" ]; then
+              echo "$PASSED" >> test_summary.txt
+            fi
+            if [ ! -z "$TOTAL" ]; then
+              echo "$TOTAL" >> test_summary.txt
+            fi
+            
+            # If we still have nothing, just get the last few relevant lines
+            if [ ! -s test_summary.txt ]; then
+              grep -E "(Testing.*|Test Suite|Test Case|passed|failed|[0-9]+ tests?)" test_output_raw.log | tail -30 > test_summary.txt || echo "Tests completed (check logs for details)" > test_summary.txt
+            fi
+          fi
+          
+          cat test_summary.txt >> test_summary.md
+          
+          # Extract failures from xcpretty formatted output
           if [ -f "test_output.log" ]; then
-            echo "# Test Results" > test_summary.md
-            echo "" >> test_summary.md
-            
-            # Extract test summary from xcpretty output
-            grep -E "(Test Suite|tests? (passed|failed)|Executed|tests? skipped)" test_output.log > test_summary.txt || echo "No test summary found" > test_summary.txt
-            
-            cat test_summary.txt >> test_summary.md
-            
-            # Extract failures
-            sed -n '/FAILED TESTS/,/^$/p' test_output.log > failed_tests.txt 2>/dev/null || true
+            awk '/FAILING TESTS/,/^$/' test_output.log > failed_tests.txt 2>/dev/null || true
             
             if [ -f failed_tests.txt ] && [ -s failed_tests.txt ]; then
               echo "" >> test_summary.md
@@ -96,6 +114,7 @@ jobs:
             test_summary.txt
             failed_tests.txt
             test_output.log
+            test_output_raw.log
           retention-days: 7
 
       - name: Check Results
