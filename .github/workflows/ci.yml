@@ -14,41 +14,44 @@ concurrency:
 jobs:
   build-and-test:
     name: Build & Test
-    runs-on: macos-15
+    runs-on: macos-26  # macOS 26 with Xcode 26.x (matches local dev environment)
     
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-
       - name: Show Xcode version
         run: xcodebuild -version
 
       - name: List available simulators
-        run: xcrun simctl list devices available
+        run: xcrun simctl list devices available | grep -i iphone
 
       - name: Build for Simulator
+        continue-on-error: true  # Don't block PR, but show failure
+        id: build
         run: |
+          set -o pipefail
           xcodebuild build \
             -project Companion.xcodeproj \
             -scheme Companion \
-            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -destination 'platform=iOS Simulator,name=iPhone 17' \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
-            | xcpretty --color || true
+            2>&1 | xcpretty --color
 
       - name: Run Tests
+        continue-on-error: true  # Don't block PR, but show failure
+        id: test
         run: |
+          set -o pipefail
           xcodebuild test \
             -project Companion.xcodeproj \
             -scheme Companion \
-            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -destination 'platform=iOS Simulator,name=iPhone 17' \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath TestResults \
-            | xcpretty --color --test || true
+            2>&1 | xcpretty --color --test
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
@@ -57,3 +60,25 @@ jobs:
           name: test-results
           path: TestResults.xcresult
           retention-days: 7
+
+      - name: Check Results
+        if: always()
+        run: |
+          echo "## CI Summary" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.build.outcome }}" == "failure" ]; then
+            echo "❌ **Build:** Failed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ **Build:** Passed" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ steps.test.outcome }}" == "failure" ]; then
+            echo "❌ **Tests:** Failed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ **Tests:** Passed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Report overall status (will show warning on PR)
+          if [ "${{ steps.build.outcome }}" == "failure" ] || [ "${{ steps.test.outcome }}" == "failure" ]; then
+            echo ""
+            echo "⚠️ CI has failures but PR can still be merged."
+            exit 0  # Don't fail the workflow, just report
+          fi
