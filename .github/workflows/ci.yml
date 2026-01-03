@@ -50,35 +50,102 @@ jobs:
             -destination 'platform=iOS Simulator,name=iPhone 17' \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
-            -resultBundlePath TestResults \
-            2>&1 | xcpretty --color --test
+            -resultBundlePath TestResults.xcresult \
+            2>&1 | tee test_output.log | xcpretty --color --test
 
-      - name: Upload Test Results
+      - name: Extract Test Results
+        if: always()
+        run: |
+          # Extract human-readable test results
+          if [ -d "TestResults.xcresult" ]; then
+            xcrun xcresulttool get --format json --path TestResults.xcresult > test_results.json
+            
+            # Create a readable summary
+            echo "# Test Results" > test_summary.md
+            echo "" >> test_summary.md
+            
+            # Extract test counts using xcresulttool
+            xcrun xcresulttool get test-results summary --path TestResults.xcresult > test_summary.txt || true
+            
+            if [ -f test_summary.txt ]; then
+              cat test_summary.txt >> test_summary.md
+            fi
+            
+            # Extract failed tests if any
+            xcrun xcresulttool get test-results failed-tests --path TestResults.xcresult > failed_tests.txt 2>/dev/null || true
+            
+            if [ -f failed_tests.txt ] && [ -s failed_tests.txt ]; then
+              echo "" >> test_summary.md
+              echo "## Failed Tests" >> test_summary.md
+              echo '```' >> test_summary.md
+              cat failed_tests.txt >> test_summary.md
+              echo '```' >> test_summary.md
+            fi
+          fi
+
+      - name: Upload Test Results Bundle
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results
+          name: xcresult-bundle
           path: TestResults.xcresult
+          retention-days: 7
+
+      - name: Upload Readable Test Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-report
+          path: |
+            test_summary.md
+            test_summary.txt
+            failed_tests.txt
+            test_output.log
+            test_results.json
           retention-days: 7
 
       - name: Check Results
         if: always()
         run: |
           echo "## CI Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Build status
           if [ "${{ steps.build.outcome }}" == "failure" ]; then
             echo "❌ **Build:** Failed" >> $GITHUB_STEP_SUMMARY
           else
             echo "✅ **Build:** Passed" >> $GITHUB_STEP_SUMMARY
           fi
+          
+          # Test status
           if [ "${{ steps.test.outcome }}" == "failure" ]; then
             echo "❌ **Tests:** Failed" >> $GITHUB_STEP_SUMMARY
           else
             echo "✅ **Tests:** Passed" >> $GITHUB_STEP_SUMMARY
           fi
           
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Add test summary if available
+          if [ -f test_summary.txt ]; then
+            echo "### Test Details" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat test_summary.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Add failed tests if any
+          if [ -f failed_tests.txt ] && [ -s failed_tests.txt ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ❌ Failed Tests" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat failed_tests.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+          
           # Report overall status (will show warning on PR)
           if [ "${{ steps.build.outcome }}" == "failure" ] || [ "${{ steps.test.outcome }}" == "failure" ]; then
-            echo ""
-            echo "⚠️ CI has failures but PR can still be merged."
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ CI has failures but PR can still be merged." >> $GITHUB_STEP_SUMMARY
             exit 0  # Don't fail the workflow, just report
           fi
