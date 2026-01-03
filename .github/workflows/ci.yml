@@ -56,23 +56,18 @@ jobs:
       - name: Extract Test Results
         if: always()
         run: |
-          # Extract human-readable test results
-          if [ -d "TestResults.xcresult" ]; then
-            xcrun xcresulttool get --format json --path TestResults.xcresult > test_results.json
-            
-            # Create a readable summary
+          # Parse test output log for summary
+          if [ -f "test_output.log" ]; then
             echo "# Test Results" > test_summary.md
             echo "" >> test_summary.md
             
-            # Extract test counts using xcresulttool
-            xcrun xcresulttool get test-results summary --path TestResults.xcresult > test_summary.txt || true
+            # Extract test summary from xcpretty output
+            grep -E "(Test Suite|tests? (passed|failed)|Executed|tests? skipped)" test_output.log > test_summary.txt || echo "No test summary found" > test_summary.txt
             
-            if [ -f test_summary.txt ]; then
-              cat test_summary.txt >> test_summary.md
-            fi
+            cat test_summary.txt >> test_summary.md
             
-            # Extract failed tests if any
-            xcrun xcresulttool get test-results failed-tests --path TestResults.xcresult > failed_tests.txt 2>/dev/null || true
+            # Extract failures
+            sed -n '/FAILED TESTS/,/^$/p' test_output.log > failed_tests.txt 2>/dev/null || true
             
             if [ -f failed_tests.txt ] && [ -s failed_tests.txt ]; then
               echo "" >> test_summary.md
@@ -101,7 +96,6 @@ jobs:
             test_summary.txt
             failed_tests.txt
             test_output.log
-            test_results.json
           retention-days: 7
 
       - name: Check Results
