@@ -42,6 +42,9 @@ class LLMService {
     
     var generationTask: Task<Void, Error>?
     
+    /// Memory service for injecting user context
+    let memoryService = MemoryService()
+    
     // MARK: - Load State
     
     enum LoadState: Equatable {
@@ -166,6 +169,9 @@ class LLMService {
     /// Task responsible for handling the generation process
     var generationTask: Task<Void, Error>?
     
+    /// Memory service for injecting user context
+    let memoryService = MemoryService()
+    
     // MARK: - Load State
     
     enum LoadState {
@@ -240,12 +246,13 @@ class LLMService {
     
     // MARK: - Generation
     
-    private func loadSystemPrompt() -> String {
+    private func loadSystemPrompt(withMemoryContext memoryContext: String = "") -> String {
         if let url = Bundle.main.url(forResource: "system_prompt", withExtension: "txt"),
            let prompt = try? String(contentsOf: url, encoding: .utf8) {
-            return prompt.trimmingCharacters(in: .whitespacesAndNewlines)
+            let basePrompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
+            return basePrompt + memoryContext
         }
-        return "You are a helpful AI assistant for journaling. Be supportive, insightful, and help the user reflect on their thoughts and feelings."
+        return "You are a helpful AI assistant for journaling. Be supportive, insightful, and help the user reflect on their thoughts and feelings." + memoryContext
     }
     
     /// Generate a response for the given session
@@ -285,9 +292,12 @@ class LLMService {
                 
                 try modelContext.save()
                 
+                // Build memory context for this conversation
+                let memoryContext = self.memoryService.buildMemoryContext(for: prompt, context: modelContext)
+                
                 // Build chat history from session messages
                 var chat: [Chat.Message] = [
-                    .system(self.loadSystemPrompt())
+                    .system(self.loadSystemPrompt(withMemoryContext: memoryContext))
                 ]
                 
                 for message in session.sortedMessages {

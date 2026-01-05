@@ -848,3 +848,76 @@ struct MemoryServiceTests {
         #expect(memories.first?.content == "Active")
     }
 }
+
+// MARK: - Memory Integration Tests
+
+struct MemoryIntegrationTests {
+    
+    @Test("Memory context is built and formatted correctly")
+    @MainActor
+    func memoryContextBuilding() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Memory.self, configurations: config)
+        let context = container.mainContext
+        
+        // Add some memories
+        let fact = Memory(type: .fact, content: "Lives in Seattle", confidence: 0.9)
+        let preference = Memory(type: .preference, content: "Loves hiking", confidence: 0.9)
+        
+        context.insert(fact)
+        context.insert(preference)
+        try context.save()
+        
+        let service = MemoryService()
+        let memoryContext = service.buildMemoryContext(for: "test", context: context)
+        
+        #expect(memoryContext.contains("What you know about the user"))
+        #expect(memoryContext.contains("Lives in Seattle"))
+        #expect(memoryContext.contains("Loves hiking"))
+    }
+    
+    @Test("LLMService has memory service")
+    @MainActor
+    func llmServiceHasMemoryService() {
+        let service = LLMService()
+        #expect(!service.memoryService.isProcessing)
+    }
+    
+    @Test("Memory context empty when no relevant memories")
+    @MainActor
+    func memoryContextEmptyWhenNoMemories() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Memory.self, configurations: config)
+        let context = container.mainContext
+        
+        let service = MemoryService()
+        let memoryContext = service.buildMemoryContext(for: "test", context: context)
+        
+        #expect(memoryContext.isEmpty)
+    }
+    
+    @Test("Memory context filters by confidence threshold")
+    @MainActor
+    func memoryContextFiltersLowConfidence() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Memory.self, configurations: config)
+        let context = container.mainContext
+        
+        // Add memories with different confidence levels
+        let highConfidence = Memory(type: .fact, content: "High confidence fact", confidence: 0.95)
+        let mediumConfidence = Memory(type: .fact, content: "Medium confidence fact", confidence: 0.75)
+        let lowConfidence = Memory(type: .fact, content: "Low confidence fact", confidence: 0.5)
+        
+        context.insert(highConfidence)
+        context.insert(mediumConfidence)
+        context.insert(lowConfidence)
+        try context.save()
+        
+        let service = MemoryService()
+        let memoryContext = service.buildMemoryContext(for: "test", context: context)
+        
+        #expect(memoryContext.contains("High confidence fact"))
+        #expect(memoryContext.contains("Medium confidence fact"))
+        #expect(!memoryContext.contains("Low confidence fact"))
+    }
+}
