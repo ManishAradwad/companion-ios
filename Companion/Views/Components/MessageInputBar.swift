@@ -55,7 +55,6 @@ struct MessageInputBar: View {
             .padding()
         }
         .background(Color(.systemBackground))
-        .compositingGroup()
     }
     
     private func sendIfPossible() {

@@ -182,17 +182,15 @@ struct ChatView: View {
                     .frame(height: 1)
                     .id("bottom")
             }
-            .scrollDismissesKeyboard(.immediately)
-            .defaultScrollAnchor(.bottom)
+            .scrollDismissesKeyboard(.interactively)
             .onChange(of: llmService.output) { _, _ in
-                // Use non-animated scroll to avoid layout conflicts during keyboard transitions
-                proxy.scrollTo("bottom", anchor: .bottom)
+                withAnimation {
+                    proxy.scrollTo("bottom", anchor: .bottom)
+                }
             }
             .onChange(of: activeSession?.messages.count) { _, _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    withAnimation(.easeOut(duration: 0.2)) {
-                        proxy.scrollTo("bottom", anchor: .bottom)
-                    }
+                withAnimation {
+                    proxy.scrollTo("bottom", anchor: .bottom)
                 }
             }
         }
