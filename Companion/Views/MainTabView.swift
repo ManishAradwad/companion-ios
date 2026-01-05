@@ -20,17 +20,23 @@ struct MainTabView: View {
                 }
                 .tag(0)
             
+            MemoryListView()
+                .tabItem {
+                    Label("Memories", systemImage: "brain.head.profile")
+                }
+                .tag(1)
+            
             HistoryView(llmService: llmService, selectedTab: $selectedTab)
                 .tabItem {
                     Label("History", systemImage: "clock")
                 }
-                .tag(1)
+                .tag(2)
         }
     }
 }
 
 #Preview {
     MainTabView()
-        .modelContainer(for: [ChatSession.self, ChatMessage.self], inMemory: true)
+        .modelContainer(for: [ChatSession.self, ChatMessage.self, Memory.self], inMemory: true)
         .environment(DeviceStat())
 }
