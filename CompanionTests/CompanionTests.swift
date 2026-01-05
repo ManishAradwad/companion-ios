@@ -488,3 +488,363 @@ struct DateGroupingTests {
         #expect(sorted[2].title == "Oldest")
     }
 }
+
+// MARK: - Memory Model Tests
+
+struct MemoryTests {
+    
+    @Test("Memory creation with all types")
+    func memoryTypes() {
+        for type in MemoryType.allCases {
+            let memory = Memory(type: type, content: "Test", source: .explicit)
+            #expect(memory.type == type)
+            #expect(memory.confidence == 1.0)
+            #expect(memory.isActive == true)
+        }
+    }
+    
+    @Test("Explicit memory has confidence 1.0")
+    func explicitMemoryConfidence() {
+        let memory = Memory(type: .fact, content: "User lives in Seattle", source: .explicit)
+        #expect(memory.source == .explicit)
+        #expect(memory.confidence == 1.0)
+    }
+    
+    @Test("Inferred memory has custom confidence")
+    func inferredMemoryConfidence() {
+        let memory = Memory(type: .trait, content: "Tends to be analytical", source: .inferred, confidence: 0.75)
+        #expect(memory.source == .inferred)
+        #expect(memory.confidence == 0.75)
+    }
+    
+    @Test("Memory has valid UUID")
+    func memoryHasValidUUID() {
+        let memory = Memory(type: .fact, content: "Test")
+        #expect(memory.id != UUID(uuidString: "00000000-0000-0000-0000-000000000000"))
+    }
+    
+    @Test("Memory timestamps are set on creation")
+    func memoryTimestampsSet() {
+        let before = Date()
+        let memory = Memory(type: .fact, content: "Test")
+        let after = Date()
+        
+        #expect(memory.createdAt >= before)
+        #expect(memory.createdAt <= after)
+        #expect(memory.updatedAt >= before)
+        #expect(memory.updatedAt <= after)
+    }
+    
+    @Test("Memory lastAccessedAt is nil by default")
+    func memoryLastAccessedNilByDefault() {
+        let memory = Memory(type: .fact, content: "Test")
+        #expect(memory.lastAccessedAt == nil)
+    }
+    
+    @Test("Memory accessCount is zero by default")
+    func memoryAccessCountZeroByDefault() {
+        let memory = Memory(type: .fact, content: "Test")
+        #expect(memory.accessCount == 0)
+    }
+    
+    @Test("Memory can have category")
+    func memoryWithCategory() {
+        let memory = Memory(type: .preference, content: "Likes coffee", category: "Food & Drink")
+        #expect(memory.category == "Food & Drink")
+    }
+    
+    @Test("Memory can track source session")
+    func memoryWithSourceSession() {
+        let memory = Memory(type: .event, content: "Started new job")
+        let sessionId = UUID()
+        memory.sourceSessionId = sessionId
+        #expect(memory.sourceSessionId == sessionId)
+    }
+}
+
+// MARK: - PersonalityProfile Tests
+
+struct PersonalityProfileTests {
+    
+    @Test("PersonalityProfile can be created")
+    func profileCreation() {
+        let profile = PersonalityProfile()
+        #expect(profile.id != UUID(uuidString: "00000000-0000-0000-0000-000000000000"))
+    }
+    
+    @Test("PersonalityProfile has empty customTraits by default")
+    func profileEmptyCustomTraits() {
+        let profile = PersonalityProfile()
+        #expect(profile.customTraits.isEmpty)
+    }
+    
+    @Test("PersonalityProfile can store Big Five traits")
+    func profileBigFiveTraits() {
+        let profile = PersonalityProfile()
+        profile.openness = 0.8
+        profile.conscientiousness = 0.7
+        profile.extraversion = 0.6
+        profile.agreeableness = 0.9
+        profile.neuroticism = 0.3
+        
+        #expect(profile.openness == 0.8)
+        #expect(profile.conscientiousness == 0.7)
+        #expect(profile.extraversion == 0.6)
+        #expect(profile.agreeableness == 0.9)
+        #expect(profile.neuroticism == 0.3)
+    }
+    
+    @Test("PersonalityProfile can store custom traits")
+    func profileCustomTraits() {
+        let profile = PersonalityProfile()
+        profile.customTraits["analytical"] = 0.85
+        profile.customTraits["creative"] = 0.72
+        
+        #expect(profile.customTraits["analytical"] == 0.85)
+        #expect(profile.customTraits["creative"] == 0.72)
+    }
+    
+    @Test("PersonalityProfile can store summary")
+    func profileSummary() {
+        let profile = PersonalityProfile()
+        profile.summary = "Highly analytical and creative thinker"
+        profile.summaryGeneratedAt = Date()
+        
+        #expect(profile.summary == "Highly analytical and creative thinker")
+        #expect(profile.summaryGeneratedAt != nil)
+    }
+}
+
+// MARK: - MemoryService Tests
+
+struct MemoryServiceTests {
+    
+    @Test("MemoryService can be instantiated")
+    @MainActor
+    func serviceCanBeInstantiated() {
+        let service = MemoryService()
+        #expect(!service.isProcessing)
+        #expect(service.lastError == nil)
+    }
+    
+    @Test("Add explicit memory")
+    @MainActor
+    func addExplicitMemory() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Memory.self, configurations: config)
+        let context = container.mainContext
+        
+        let service = MemoryService()
+        service.addExplicitMemory(type: .fact, content: "Lives in Seattle", context: context)
+        
+        let memories = try context.fetch(FetchDescriptor<Memory>())
+        #expect(memories.count == 1)
+        #expect(memories.first?.content == "Lives in Seattle")
+        #expect(memories.first?.source == .explicit)
+        #expect(memories.first?.confidence == 1.0)
+    }
+    
+    @Test("Add inferred memory")
+    @MainActor
+    func addInferredMemory() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Memory.self, configurations: config)
+        let context = container.mainContext
+        
+        let service = MemoryService()
+        service.addInferredMemory(
+            type: .trait,
+            content: "Tends to overthink",
+            confidence: 0.8,
+            sourceSession: nil,
+            sourceMessage: nil,
+            context: context
+        )
+        
+        let memories = try context.fetch(FetchDescriptor<Memory>())
+        #expect(memories.count == 1)
+        #expect(memories.first?.content == "Tends to overthink")
+        #expect(memories.first?.source == .inferred)
+        #expect(memories.first?.confidence == 0.8)
+    }
+    
+    @Test("Update memory content")
+    @MainActor
+    func updateMemoryContent() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Memory.self, configurations: config)
+        let context = container.mainContext
+        
+        let memory = Memory(type: .fact, content: "Original content")
+        context.insert(memory)
+        try context.save()
+        
+        let service = MemoryService()
+        service.updateMemory(memory, content: "Updated content", context: context)
+        
+        #expect(memory.content == "Updated content")
+    }
+    
+    @Test("Delete memory")
+    @MainActor
+    func deleteMemory() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Memory.self, configurations: config)
+        let context = container.mainContext
+        
+        let memory = Memory(type: .fact, content: "To be deleted")
+        context.insert(memory)
+        try context.save()
+        
+        let service = MemoryService()
+        service.deleteMemory(memory, context: context)
+        
+        let memories = try context.fetch(FetchDescriptor<Memory>())
+        #expect(memories.isEmpty)
+    }
+    
+    @Test("Retrieve relevant memories filters by confidence")
+    @MainActor
+    func retrieveRelevantMemoriesConfidence() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Memory.self, configurations: config)
+        let context = container.mainContext
+        
+        let highConfidence = Memory(type: .fact, content: "High", source: .inferred, confidence: 0.9)
+        let lowConfidence = Memory(type: .fact, content: "Low", source: .inferred, confidence: 0.5)
+        
+        context.insert(highConfidence)
+        context.insert(lowConfidence)
+        try context.save()
+        
+        let service = MemoryService()
+        let retrieved = service.retrieveRelevantMemories(query: "", context: context)
+        
+        #expect(retrieved.contains { $0.content == "High" })
+        #expect(!retrieved.contains { $0.content == "Low" })
+    }
+    
+    @Test("Retrieve memories by type")
+    @MainActor
+    func retrieveMemoriesByType() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Memory.self, configurations: config)
+        let context = container.mainContext
+        
+        let fact = Memory(type: .fact, content: "A fact", confidence: 0.9)
+        let preference = Memory(type: .preference, content: "A preference", confidence: 0.9)
+        
+        context.insert(fact)
+        context.insert(preference)
+        try context.save()
+        
+        let service = MemoryService()
+        let facts = service.retrieveRelevantMemories(query: "", types: [.fact], context: context)
+        
+        #expect(facts.count == 1)
+        #expect(facts.first?.type == .fact)
+    }
+    
+    @Test("Touch memory updates access tracking")
+    @MainActor
+    func touchMemoryUpdatesTracking() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Memory.self, configurations: config)
+        let context = container.mainContext
+        
+        let memory = Memory(type: .fact, content: "Test")
+        context.insert(memory)
+        try context.save()
+        
+        #expect(memory.accessCount == 0)
+        #expect(memory.lastAccessedAt == nil)
+        
+        let service = MemoryService()
+        service.touchMemory(memory, context: context)
+        
+        #expect(memory.accessCount == 1)
+        #expect(memory.lastAccessedAt != nil)
+    }
+    
+    @Test("Build memory context returns empty for no memories")
+    @MainActor
+    func buildMemoryContextEmpty() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Memory.self, configurations: config)
+        let context = container.mainContext
+        
+        let service = MemoryService()
+        let memoryContext = service.buildMemoryContext(for: "test query", context: context)
+        
+        #expect(memoryContext.isEmpty)
+    }
+    
+    @Test("Build memory context formats memories by type")
+    @MainActor
+    func buildMemoryContextFormatted() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Memory.self, configurations: config)
+        let context = container.mainContext
+        
+        let fact = Memory(type: .fact, content: "Lives in Seattle", confidence: 0.9)
+        let preference = Memory(type: .preference, content: "Likes hiking", confidence: 0.9)
+        
+        context.insert(fact)
+        context.insert(preference)
+        try context.save()
+        
+        let service = MemoryService()
+        let memoryContext = service.buildMemoryContext(for: "test query", context: context)
+        
+        #expect(memoryContext.contains("What you know about the user"))
+        #expect(memoryContext.contains("Fact"))
+        #expect(memoryContext.contains("Preference"))
+        #expect(memoryContext.contains("Lives in Seattle"))
+        #expect(memoryContext.contains("Likes hiking"))
+    }
+    
+    @Test("Get all memories with type filter")
+    @MainActor
+    func getAllMemoriesWithTypeFilter() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Memory.self, configurations: config)
+        let context = container.mainContext
+        
+        let fact = Memory(type: .fact, content: "Fact")
+        let preference = Memory(type: .preference, content: "Preference")
+        let event = Memory(type: .event, content: "Event")
+        
+        context.insert(fact)
+        context.insert(preference)
+        context.insert(event)
+        try context.save()
+        
+        let service = MemoryService()
+        let facts = service.getAllMemories(types: [.fact], context: context)
+        
+        #expect(facts.count == 1)
+        #expect(facts.first?.type == .fact)
+    }
+    
+    @Test("Get all memories excludes inactive by default")
+    @MainActor
+    func getAllMemoriesExcludesInactive() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Memory.self, configurations: config)
+        let context = container.mainContext
+        
+        let active = Memory(type: .fact, content: "Active")
+        let inactive = Memory(type: .fact, content: "Inactive")
+        inactive.isActive = false
+        
+        context.insert(active)
+        context.insert(inactive)
+        try context.save()
+        
+        let service = MemoryService()
+        let memories = service.getAllMemories(context: context)
+        
+        #expect(memories.count == 1)
+        #expect(memories.first?.content == "Active")
+    }
+}
