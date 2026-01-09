@@ -1,0 +1,92 @@
+{
+  "$schema": "./schema.json",
+  "name": "memory",
+  "version": "1.0.0",
+  "description": "Build and manage the memory layer for Companion - user insights, fact extraction, and memory retrieval",
+  "author": "Companion iOS Team",
+  "category": "ai-memory",
+  "tags": [
+    "memory",
+    "llm",
+    "personalization",
+    "user-insights",
+    "facts"
+  ],
+  "parameters": {
+    "prompt": {
+      "type": "string",
+      "description": "Instructions for memory operations: extract facts, retrieve memories, update memory models, or implement memory features",
+      "required": true
+    }
+  },
+  "capabilities": [
+    "extract-user-facts",
+    "store-memories",
+    "retrieve-memories",
+    "analyze-patterns",
+    "build-user-personality",
+    "memory-search"
+  ],
+  "instructions": {
+    "overview": "This skill handles all memory-related features in Companion, enabling the app to learn about users over time and provide personalized experiences.",
+    "core_concepts": {
+      "memory_types": [
+        "Short-term: Recent conversation context",
+        "Long-term: User facts, preferences, patterns",
+        "Personality: Derived insights about user's character"
+      ],
+      "storage": "SwiftData models for persistence, indexed for efficient retrieval",
+      "retrieval": "Context-aware memory search based on current conversation",
+      "privacy": "All memory stored on-device, never leaves the user's iPhone"
+    },
+    "steps": [
+      "Understand the memory operation requested in the prompt",
+      "Create or update memory-related SwiftData models",
+      "Implement fact extraction from conversations if needed",
+      "Build memory retrieval logic for LLM context injection",
+      "Update system prompts to include memory context",
+      "Add UI for users to view/edit their memories",
+      "Ensure memory privacy and on-device storage",
+      "Test memory extraction and retrieval accuracy"
+    ],
+    "patterns": {
+      "fact_extraction": "Parse LLM responses for structured facts about the user",
+      "memory_indexing": "Tag memories with categories, timestamps, relevance scores",
+      "context_injection": "Inject relevant memories into LLM system prompt before generation",
+      "personality_building": "Aggregate facts over time to derive personality insights"
+    },
+    "files_typically_modified": [
+      "Companion/Models/Memory.swift",
+      "Companion/Models/UserFact.swift",
+      "Companion/Services/MemoryService.swift",
+      "Companion/Services/LLMService.swift",
+      "Companion/Resources/Prompts/system_prompt.txt",
+      "Companion/Views/MemoryView.swift"
+    ]
+  },
+  "dependencies": {
+    "project_knowledge": [
+      ".github/copilot-instructions.md",
+      "Companion/Services/LLMService.swift",
+      "Companion/Resources/Prompts/system_prompt.txt"
+    ],
+    "related_skills": [
+      "prompts",
+      "feature"
+    ]
+  },
+  "examples": [
+    {
+      "input": {
+        "prompt": "Extract facts when user mentions their favorite food, hobbies, or work"
+      },
+      "expected_output": "Implements fact extraction in LLMService, creates UserFact model, stores extracted facts"
+    },
+    {
+      "input": {
+        "prompt": "Retrieve and inject relevant memories into LLM context for personalized responses"
+      },
+      "expected_output": "Implements memory retrieval logic, updates system prompt injection, tests context quality"
+    }
+  ]
+}

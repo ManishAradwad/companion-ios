@@ -1,7 +1,17 @@
 # Companion iOS - AI Coding Agent Guidelines
 
 ## Project Overview
-**Companion** is an early-stage iOS app for on-device AI-powered journaling/assistant features, built with SwiftUI, SwiftData, and MLX for local LLM inference. I want this app to be used by user for keeping track of their life in general. It can be a friend which they can talk to about anything and everything. I want this app to also store a `personality` of the user, it can help the users to learn more about themselves over time. 
+**Companion** is an early-stage iOS app for on-device AI-powered journaling/assistant features, built with SwiftUI, SwiftData, and MLX for local LLM inference. I want this app to be used by user for keeping track of their life in general. It can be a friend which they can talk to about anything and everything. I want this app to also store a `personality` of the user, it can help the users to learn more about themselves over time.
+
+## 🎯 Agent Skills
+This project implements the [Agent Skills standard](https://agentskills.io) for AI-powered development. Specialized skills are available for common tasks:
+
+- **@feature** - End-to-end feature scaffolding (models + services + views + tests)
+- **@memory** - Memory layer management (fact extraction, retrieval, personalization)
+- **@prompts** - LLM prompt engineering (system prompts, modes, optimization)
+- **@test** - Test generation with Swift Testing framework
+
+See [`.github/skills/README.md`](.github/skills/README.md) for detailed skill documentation and usage examples. 
 
 ## Current Architecture
 

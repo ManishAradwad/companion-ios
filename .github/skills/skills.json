@@ -1,0 +1,68 @@
+{
+  "$schema": "https://agentskills.io/schema/v1/skills-manifest.json",
+  "version": "1.0.0",
+  "name": "Companion iOS Skills",
+  "description": "Collection of AI agent skills for developing the Companion iOS app - an on-device LLM journaling companion",
+  "repository": "ManishAradwad/companion-ios",
+  "skills": [
+    {
+      "name": "feature",
+      "path": "./feature.skill.json",
+      "description": "End-to-end feature scaffolding - creates models, services, views, and tests",
+      "category": "code-generation",
+      "enabled": true
+    },
+    {
+      "name": "memory",
+      "path": "./memory.skill.json",
+      "description": "Memory layer management - user insights, fact extraction, and retrieval",
+      "category": "ai-memory",
+      "enabled": true
+    },
+    {
+      "name": "prompts",
+      "path": "./prompts.skill.json",
+      "description": "Prompt engineering - system prompts, memory injection, conversation modes",
+      "category": "prompt-engineering",
+      "enabled": true
+    },
+    {
+      "name": "test",
+      "path": "./test.skill.json",
+      "description": "Test generation and execution using Swift Testing framework",
+      "category": "testing",
+      "enabled": true
+    }
+  ],
+  "metadata": {
+    "project": {
+      "name": "Companion iOS",
+      "type": "iOS App",
+      "language": "Swift",
+      "frameworks": ["SwiftUI", "SwiftData", "MLX"],
+      "minimum_ios": "17.0",
+      "description": "On-device AI-powered journaling and life companion app"
+    },
+    "architecture": {
+      "pattern": "MVVM with SwiftUI",
+      "persistence": "SwiftData",
+      "llm": "MLX (local on-device inference)",
+      "navigation": "Tab-based (Chat + History)"
+    },
+    "guidelines": {
+      "documentation": ".github/copilot-instructions.md",
+      "code_style": "SwiftUI with @Observable, async/await, MainActor patterns",
+      "testing": "Swift Testing framework, simulator-based with stubs"
+    }
+  },
+  "usage": {
+    "discovery": "Skills are automatically discovered by GitHub Copilot and compatible AI agents",
+    "invocation": "Use @skillname in prompts or let the agent auto-select based on task context",
+    "examples": [
+      "@feature Create a mood tracking feature with emoji selection",
+      "@memory Extract and store user preferences from conversations",
+      "@prompts Update system prompt to be more empathetic",
+      "@test Generate tests for the LLMService class"
+    ]
+  }
+}
