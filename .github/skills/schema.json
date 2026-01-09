@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft-07/schema#",
   "$id": "https://agentskills.io/schema/v1/skill.json",
   "title": "Agent Skill Definition",
   "description": "Schema for defining AI agent skills following the Agent Skills standard",

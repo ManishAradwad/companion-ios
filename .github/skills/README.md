@@ -102,7 +102,7 @@ Each skill follows the Agent Skills JSON schema:
 
 ```json
 {
-  "$schema": "https://agentskills.io/schema/v1/skill.json",
+  "$schema": "./schema.json",
   "name": "skill-name",
   "version": "1.0.0",
   "description": "What the skill does",
@@ -113,6 +113,13 @@ Each skill follows the Agent Skills JSON schema:
   "examples": [ ... ]
 }
 ```
+
+**Note**: Skills reference a local `schema.json` that follows the Agent Skills v1.0 standard. This provides:
+- Offline validation capability
+- Project-specific schema extensions
+- Version-controlled schema definitions
+
+The local schema is fully compatible with the official Agent Skills standard.
 
 ## 🔗 Related Documentation
 
