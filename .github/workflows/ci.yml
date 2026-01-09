@@ -27,7 +27,7 @@ jobs:
         run: xcrun simctl list devices available | grep -i iphone
 
       - name: Build for Simulator
-        continue-on-error: true  # Don't block PR, but show failure
+        continue-on-error: false  # Don't block PR, but show failure
         id: build
         run: |
           set -o pipefail
@@ -40,7 +40,7 @@ jobs:
             2>&1 | xcpretty --color
 
       - name: Run Tests
-        continue-on-error: true  # Don't block PR, but show failure
+        continue-on-error: false  # Don't block PR, but show failure
         id: test
         run: |
           set -o pipefail
