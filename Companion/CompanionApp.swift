@@ -15,6 +15,8 @@ struct CompanionApp: App {
         let schema = Schema([
             ChatSession.self,
             ChatMessage.self,
+            Memory.self,
+            PersonalityProfile.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
