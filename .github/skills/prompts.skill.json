@@ -1,0 +1,88 @@
+{
+  "$schema": "https://agentskills.io/schema/v1/skill.json",
+  "name": "prompts",
+  "version": "1.0.0",
+  "description": "Craft, iterate, and manage LLM prompts for Companion - system prompts, memory injection, and conversation modes",
+  "author": "Companion iOS Team",
+  "category": "prompt-engineering",
+  "tags": ["llm", "prompts", "system-prompt", "conversation", "ai"],
+  "parameters": {
+    "prompt": {
+      "type": "string",
+      "description": "Instructions for prompt operations: create new prompts, update system prompt, add memory context, or implement conversation modes",
+      "required": true
+    }
+  },
+  "capabilities": [
+    "system-prompt-design",
+    "memory-context-injection",
+    "conversation-mode-switching",
+    "prompt-optimization",
+    "personality-tuning",
+    "response-formatting"
+  ],
+  "instructions": {
+    "overview": "This skill manages all LLM prompt engineering for Companion, ensuring high-quality, personalized conversations.",
+    "core_concepts": {
+      "system_prompt": "The foundational prompt that defines the AI's personality and behavior",
+      "memory_context": "Dynamic injection of user memories into prompts for personalization",
+      "conversation_modes": "Different AI personalities (friend, therapist, coach, etc.)",
+      "response_format": "Structured output formats (markdown, JSON, etc.)"
+    },
+    "steps": [
+      "Understand the prompt engineering task from the input",
+      "Locate and review existing prompts in Companion/Resources/Prompts/",
+      "Design or update system prompt with clear personality and guidelines",
+      "Implement memory context injection if personalization is needed",
+      "Add conversation mode switching logic if multiple modes requested",
+      "Test prompts with various user inputs to validate quality",
+      "Optimize token usage while maintaining quality",
+      "Update LLMService to use new/updated prompts",
+      "Document prompt changes and rationale"
+    ],
+    "patterns": {
+      "system_prompt_structure": "Role definition → Capabilities → Guidelines → Constraints → Output format",
+      "memory_injection": "Insert relevant memories after role definition, before user message",
+      "mode_switching": "Prefix system prompt with mode-specific personality and rules",
+      "token_optimization": "Use concise language, remove redundancy, focus on essential instructions"
+    },
+    "files_typically_modified": [
+      "Companion/Resources/Prompts/system_prompt.txt",
+      "Companion/Resources/Prompts/{mode}_prompt.txt",
+      "Companion/Services/LLMService.swift"
+    ],
+    "prompt_guidelines": {
+      "tone": "Friendly, empathetic, and supportive for journaling companion",
+      "personality": "Patient listener, thoughtful questioner, gentle motivator",
+      "constraints": [
+        "Always maintain user privacy",
+        "Never judge or criticize the user",
+        "Ask follow-up questions to deepen understanding",
+        "Help users reflect on their experiences"
+      ],
+      "output_format": "Natural conversational markdown, use bullet points for lists, bold for emphasis"
+    }
+  },
+  "dependencies": {
+    "project_knowledge": [
+      ".github/copilot-instructions.md",
+      "Companion/Services/LLMService.swift",
+      "Companion/Resources/Prompts/system_prompt.txt"
+    ],
+    "related_skills": ["memory"]
+  },
+  "examples": [
+    {
+      "input": {
+        "prompt": "Update system prompt to make the AI ask more reflective questions about the user's day"
+      },
+      "expected_output": "Updates system_prompt.txt with question-asking guidelines, tests with sample conversations"
+    },
+    {
+      "input": {
+        "prompt": "Add a 'coach' conversation mode that focuses on goal-setting and accountability"
+      },
+      "expected_output": "Creates coach_prompt.txt, adds mode switching logic in LLMService, adds UI to select mode"
+    }
+  ]
+}

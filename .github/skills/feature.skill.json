@@ -1,0 +1,66 @@
+{
+  "$schema": "https://agentskills.io/schema/v1/skill.json",
+  "name": "feature",
+  "version": "1.0.0",
+  "description": "End-to-end feature scaffolding for Companion iOS - creates models, services, views, and tests together",
+  "author": "Companion iOS Team",
+  "category": "code-generation",
+  "tags": ["swift", "swiftui", "ios", "feature", "scaffold"],
+  "parameters": {
+    "prompt": {
+      "type": "string",
+      "description": "Description of the feature to implement, including requirements and acceptance criteria",
+      "required": true
+    }
+  },
+  "capabilities": [
+    "create-swiftdata-models",
+    "create-services",
+    "create-swiftui-views",
+    "create-tests",
+    "integrate-components"
+  ],
+  "instructions": {
+    "overview": "This skill scaffolds complete iOS features following Companion's architecture patterns.",
+    "steps": [
+      "Parse the feature requirements from the prompt",
+      "Create SwiftData models in Companion/Models/ if needed",
+      "Create service layer in Companion/Services/ for business logic",
+      "Create SwiftUI views in Companion/Views/ following the project structure",
+      "Add components to Companion/Views/Components/ if reusable",
+      "Create unit tests in CompanionTests/ using Swift Testing framework",
+      "Update CompanionApp.swift if new models need to be added to ModelContainer",
+      "Follow all patterns from copilot-instructions.md",
+      "Ensure preview guards for async operations",
+      "Add haptic feedback for user interactions"
+    ],
+    "patterns": {
+      "models": "Use SwiftData with @Model macro, relationships with @Relationship, cascade deletes where appropriate",
+      "services": "Use @Observable classes, async/await patterns, MainActor for UI updates",
+      "views": "SwiftUI with @Observable, @Bindable for two-way binding, MARK sections for organization",
+      "tests": "Swift Testing framework, run on simulator with stub implementations for MLX"
+    },
+    "files_typically_created": [
+      "Companion/Models/{FeatureName}Model.swift",
+      "Companion/Services/{FeatureName}Service.swift",
+      "Companion/Views/{FeatureName}View.swift",
+      "Companion/Views/Components/{ComponentName}.swift",
+      "CompanionTests/{FeatureName}Tests.swift"
+    ]
+  },
+  "dependencies": {
+    "project_knowledge": [
+      ".github/copilot-instructions.md",
+      "Companion/CompanionApp.swift"
+    ],
+    "related_skills": ["test", "memory"]
+  },
+  "examples": [
+    {
+      "input": {
+        "prompt": "Add a mood tracking feature that lets users log their mood with emoji and view mood history"
+      },
+      "expected_output": "Creates MoodEntry model, MoodService, MoodTrackingView, updates app structure, adds tests"
+    }
+  ]
+}

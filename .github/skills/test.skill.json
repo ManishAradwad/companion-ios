@@ -1,0 +1,95 @@
+{
+  "$schema": "https://agentskills.io/schema/v1/skill.json",
+  "name": "test",
+  "version": "1.0.0",
+  "description": "Generate and run unit tests using Swift Testing framework for Companion iOS",
+  "author": "Companion iOS Team",
+  "category": "testing",
+  "tags": ["swift", "testing", "unit-tests", "swift-testing", "quality"],
+  "parameters": {
+    "prompt": {
+      "type": "string",
+      "description": "Instructions for test operations: generate tests for specific components, update existing tests, or run test suites",
+      "required": true
+    }
+  },
+  "capabilities": [
+    "generate-unit-tests",
+    "test-swiftdata-models",
+    "test-services",
+    "test-views",
+    "mock-dependencies",
+    "run-tests",
+    "test-coverage-analysis"
+  ],
+  "instructions": {
+    "overview": "This skill handles test generation and execution for Companion iOS, using Swift Testing framework with simulator-based execution.",
+    "core_concepts": {
+      "framework": "Swift Testing (modern Swift testing framework)",
+      "execution": "Tests run on iOS Simulator with stub implementations for MLX",
+      "patterns": "Test models with in-memory containers, services with mock dependencies, views with preview mode",
+      "coverage": "Aim for comprehensive coverage of business logic and edge cases"
+    },
+    "steps": [
+      "Understand what needs to be tested from the prompt",
+      "Identify the components to test (models, services, views)",
+      "Create test files in CompanionTests/ following naming convention",
+      "Import Swift Testing framework and necessary modules",
+      "Create test cases with @Test macro",
+      "Set up test fixtures and mock dependencies",
+      "Write tests for happy paths and edge cases",
+      "Add stub implementations for MLX-dependent code (simulator compatibility)",
+      "Run tests on iOS Simulator to verify they pass",
+      "Document any limitations or assumptions"
+    ],
+    "patterns": {
+      "model_tests": "Use in-memory ModelContainer, test relationships and cascade deletes",
+      "service_tests": "Mock dependencies, test async operations, verify state transitions",
+      "view_tests": "Test view model logic, use preview mode guards for async operations",
+      "mlx_stubs": "Use conditional compilation #if targetEnvironment(simulator) for MLX code"
+    },
+    "test_structure": {
+      "imports": [
+        "import Testing",
+        "import SwiftData",
+        "@testable import Companion"
+      ],
+      "test_function": "@Test func testFeatureName() async throws { ... }",
+      "assertions": "Use #expect() for assertions instead of XCTest's assert methods",
+      "async_testing": "Use async throws for testing async code"
+    },
+    "files_typically_created": [
+      "CompanionTests/{Component}Tests.swift",
+      "CompanionTests/Mocks/Mock{Service}.swift",
+      "CompanionTests/Fixtures/Test{Model}Data.swift"
+    ],
+    "naming_conventions": {
+      "test_files": "{ComponentName}Tests.swift",
+      "test_functions": "testFeatureScenario() or testComponentBehavior()",
+      "mocks": "Mock{ServiceName}.swift",
+      "fixtures": "Test{ModelName}Data.swift"
+    }
+  },
+  "dependencies": {
+    "project_knowledge": [
+      ".github/copilot-instructions.md",
+      "CompanionTests/"
+    ],
+    "testing_framework": "Swift Testing (built into Xcode 16+)",
+    "related_skills": ["feature"]
+  },
+  "examples": [
+    {
+      "input": {
+        "prompt": "Generate tests for ChatMessage model including relationships and timestamps"
+      },
+      "expected_output": "Creates ChatMessageTests.swift with tests for creation, relationships, cascade delete"
+    },
+    {
+      "input": {
+        "prompt": "Test LLMService model loading and streaming generation with mocks"
+      },
+      "expected_output": "Creates LLMServiceTests.swift with mock MLX dependencies, tests load states and generation"
+    }
+  ]
+}
