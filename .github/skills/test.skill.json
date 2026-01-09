@@ -1,11 +1,17 @@
 {
-  "$schema": "https://agentskills.io/schema/v1/skill.json",
+  "$schema": "./schema.json",
   "name": "test",
   "version": "1.0.0",
   "description": "Generate and run unit tests using Swift Testing framework for Companion iOS",
   "author": "Companion iOS Team",
   "category": "testing",
-  "tags": ["swift", "testing", "unit-tests", "swift-testing", "quality"],
+  "tags": [
+    "swift",
+    "testing",
+    "unit-tests",
+    "swift-testing",
+    "quality"
+  ],
   "parameters": {
     "prompt": {
       "type": "string",
@@ -76,7 +82,9 @@
       "CompanionTests/"
     ],
     "testing_framework": "Swift Testing (built into Xcode 16+)",
-    "related_skills": ["feature"]
+    "related_skills": [
+      "feature"
+    ]
   },
   "examples": [
     {

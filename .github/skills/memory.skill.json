@@ -1,11 +1,17 @@
 {
-  "$schema": "https://agentskills.io/schema/v1/skill.json",
+  "$schema": "./schema.json",
   "name": "memory",
   "version": "1.0.0",
   "description": "Build and manage the memory layer for Companion - user insights, fact extraction, and memory retrieval",
   "author": "Companion iOS Team",
   "category": "ai-memory",
-  "tags": ["memory", "llm", "personalization", "user-insights", "facts"],
+  "tags": [
+    "memory",
+    "llm",
+    "personalization",
+    "user-insights",
+    "facts"
+  ],
   "parameters": {
     "prompt": {
       "type": "string",
@@ -64,7 +70,10 @@
       "Companion/Services/LLMService.swift",
       "Companion/Resources/Prompts/system_prompt.txt"
     ],
-    "related_skills": ["prompts", "feature"]
+    "related_skills": [
+      "prompts",
+      "feature"
+    ]
   },
   "examples": [
     {

@@ -1,11 +1,17 @@
 {
-  "$schema": "https://agentskills.io/schema/v1/skill.json",
+  "$schema": "./schema.json",
   "name": "feature",
   "version": "1.0.0",
   "description": "End-to-end feature scaffolding for Companion iOS - creates models, services, views, and tests together",
   "author": "Companion iOS Team",
   "category": "code-generation",
-  "tags": ["swift", "swiftui", "ios", "feature", "scaffold"],
+  "tags": [
+    "swift",
+    "swiftui",
+    "ios",
+    "feature",
+    "scaffold"
+  ],
   "parameters": {
     "prompt": {
       "type": "string",
@@ -53,7 +59,10 @@
       ".github/copilot-instructions.md",
       "Companion/CompanionApp.swift"
     ],
-    "related_skills": ["test", "memory"]
+    "related_skills": [
+      "test",
+      "memory"
+    ]
   },
   "examples": [
     {

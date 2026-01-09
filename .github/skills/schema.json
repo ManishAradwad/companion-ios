@@ -1,0 +1,190 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentskills.io/schema/v1/skill.json",
+  "title": "Agent Skill Definition",
+  "description": "Schema for defining AI agent skills following the Agent Skills standard",
+  "type": "object",
+  "required": ["name", "version", "description", "parameters", "instructions"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "name": {
+      "type": "string",
+      "description": "Unique identifier for the skill",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version of the skill",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of what the skill does",
+      "minLength": 10,
+      "maxLength": 200
+    },
+    "author": {
+      "type": "string",
+      "description": "Author or team name"
+    },
+    "category": {
+      "type": "string",
+      "description": "Category of the skill",
+      "enum": [
+        "code-generation",
+        "testing",
+        "documentation",
+        "refactoring",
+        "ai-memory",
+        "prompt-engineering",
+        "debugging",
+        "deployment",
+        "other"
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "description": "Tags for searchability",
+      "items": {
+        "type": "string"
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Input parameters for the skill",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["type", "description"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["string", "number", "boolean", "object", "array"]
+          },
+          "description": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "default": {}
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "description": "List of capabilities this skill provides",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "instructions": {
+      "type": "object",
+      "description": "Detailed instructions for executing the skill",
+      "required": ["overview"],
+      "properties": {
+        "overview": {
+          "type": "string",
+          "description": "High-level overview of the skill's purpose"
+        },
+        "steps": {
+          "type": "array",
+          "description": "Step-by-step instructions",
+          "items": {
+            "type": "string"
+          }
+        },
+        "patterns": {
+          "type": "object",
+          "description": "Common patterns and best practices"
+        },
+        "files_typically_created": {
+          "type": "array",
+          "description": "Files that are typically created by this skill",
+          "items": {
+            "type": "string"
+          }
+        },
+        "files_typically_modified": {
+          "type": "array",
+          "description": "Files that are typically modified by this skill",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "description": "Dependencies and related resources",
+      "properties": {
+        "project_knowledge": {
+          "type": "array",
+          "description": "Project files the skill should reference",
+          "items": {
+            "type": "string"
+          }
+        },
+        "related_skills": {
+          "type": "array",
+          "description": "Other skills that work well with this one",
+          "items": {
+            "type": "string"
+          }
+        },
+        "external_tools": {
+          "type": "array",
+          "description": "External tools or APIs required",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "examples": {
+      "type": "array",
+      "description": "Example usages of the skill",
+      "items": {
+        "type": "object",
+        "required": ["input", "expected_output"],
+        "properties": {
+          "input": {
+            "type": "object",
+            "description": "Example input parameters"
+          },
+          "expected_output": {
+            "type": "string",
+            "description": "Description of expected output"
+          }
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "description": "Known limitations of the skill",
+      "items": {
+        "type": "string"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata",
+      "properties": {
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deprecated": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

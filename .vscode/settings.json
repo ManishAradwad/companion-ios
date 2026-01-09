@@ -1,0 +1,10 @@
+{
+  "github.copilot.chat.codeGeneration.instructions": [
+    {
+      "file": ".github/copilot-instructions.md"
+    }
+  ],
+  "github.copilot.chat.skills.enabled": true,
+  "github.copilot.chat.skills.path": ".github/skills",
+  "github.copilot.chat.useProjectTemplates": true
+}
